@@ -1,17 +1,18 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { WRITING_TASKS } from '../constants';
-import { WritingTask, WritingFeedback, TaskType, Highlight, LanguagePoint } from '../types';
-import { evaluateWriting } from '../services/geminiService';
-import { saveSubmission } from '../services/storageService';
+import { WritingTask, WritingFeedback, TaskType, Highlight, LanguagePoint, GroundingLink } from '../types';
+import { evaluateWriting, getTaskResources, getLiveSuggestions } from '../services/geminiService';
+import { saveSubmission, saveDraft, getDraft, clearDraft } from '../services/storageService';
 import { 
-  BarChart, Bar, LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell
+  BarChart, Bar, LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { 
   Send, CheckCircle2, ChevronRight, AlertCircle, Loader2, 
   BookOpen, Sparkles, GraduationCap, ArrowUpCircle, Info,
   LineChart as LineChartIcon, Mail, FileText, ClipboardCheck, Lightbulb,
-  Table as TableIcon, ChartBar, Edit3, RotateCcw, PenTool
+  Table as TableIcon, ChartBar, Edit3, RotateCcw, PenTool, ExternalLink, Search, Globe, Cpu, Zap,
+  Clock, Save, Trash2
 } from 'lucide-react';
 
 const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> = ({ config }) => {
@@ -25,10 +26,7 @@ const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> 
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
             <XAxis dataKey={config.xAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-            <Tooltip 
-              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
-              cursor={{ fill: '#f8fafc' }}
-            />
+            <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
             <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
             {config.dataKeys.map((key, idx) => (
               <Bar key={key} dataKey={key} fill={colors[idx % colors.length]} radius={[4, 4, 0, 0]} />
@@ -57,7 +55,6 @@ const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> 
       </div>
     );
   }
-
   return null;
 };
 
@@ -71,8 +68,106 @@ const WritingSection: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<'all' | 'task1' | 'task2'>('all');
   const [showDataTable, setShowDataTable] = useState(false);
+  const [taskResources, setTaskResources] = useState<GroundingLink[]>([]);
+  const [isLoadingResources, setIsLoadingResources] = useState(false);
+  const [liveSuggestions, setLiveSuggestions] = useState<string[]>([]);
+  const [isLiveLoading, setIsLiveLoading] = useState(false);
+  const [showDraftBanner, setShowDraftBanner] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const wordCount = essay.trim() === '' ? 0 : essay.trim().split(/\s+/).length;
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    if (selectedTask) {
+      handleFetchResources();
+      
+      // Check for existing draft
+      const draft = getDraft(selectedTask.id);
+      if (draft && draft !== essay) {
+        setShowDraftBanner(true);
+      } else {
+        setShowDraftBanner(false);
+      }
+    }
+  }, [selectedTask]);
+
+  // Auto-save logic
+  useEffect(() => {
+    if (selectedTask && essay.length > 0) {
+      if (autoSaveTimerRef.current) clearInterval(autoSaveTimerRef.current);
+      
+      autoSaveTimerRef.current = setInterval(() => {
+        handleSaveDraft();
+      }, 30000); // Auto-save every 30 seconds
+    }
+    
+    return () => {
+      if (autoSaveTimerRef.current) clearInterval(autoSaveTimerRef.current);
+    };
+  }, [essay, selectedTask]);
+
+  // Debounced Live Suggestions
+  useEffect(() => {
+    if (essay.length < 50 || !selectedTask) {
+      setLiveSuggestions([]);
+      return;
+    }
+
+    if (timerRef.current) clearTimeout(timerRef.current);
+
+    timerRef.current = setTimeout(async () => {
+      setIsLiveLoading(true);
+      try {
+        const suggestions = await getLiveSuggestions(essay, selectedTask.question);
+        setLiveSuggestions(suggestions);
+      } catch (err) {
+        console.error('Live suggestion failed');
+      } finally {
+        setIsLiveLoading(false);
+      }
+    }, 3000); // 3-second debounce
+
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [essay, selectedTask]);
+
+  const handleFetchResources = async () => {
+    if (!selectedTask) return;
+    setIsLoadingResources(true);
+    try {
+      const links = await getTaskResources(selectedTask.question);
+      setTaskResources(links);
+    } catch (err) {
+      console.error('Failed to fetch resources');
+    } finally {
+      setIsLoadingResources(false);
+    }
+  };
+
+  const handleSaveDraft = () => {
+    if (selectedTask && essay) {
+      saveDraft(selectedTask.id, essay);
+      setLastSaved(new Date());
+    }
+  };
+
+  const handleLoadDraft = () => {
+    if (selectedTask) {
+      const draft = getDraft(selectedTask.id);
+      if (draft) {
+        setEssay(draft);
+        setShowDraftBanner(false);
+      }
+    }
+  };
+
+  const handleDiscardDraft = () => {
+    if (selectedTask) {
+      clearDraft(selectedTask.id);
+      setShowDraftBanner(false);
+    }
+  };
 
   const handleSubmit = async () => {
     if (!selectedTask) return;
@@ -89,6 +184,9 @@ const WritingSection: React.FC = () => {
       setFeedback(result);
       setActiveView('feedback');
       
+      // Clear draft on successful submission
+      clearDraft(selectedTask.id);
+      
       saveSubmission({
         id: Math.random().toString(36).substr(2, 9),
         type: selectedTask.type,
@@ -99,366 +197,209 @@ const WritingSection: React.FC = () => {
         wordCount
       });
     } catch (err) {
-      setError('Evaluation failed. Please check your internet connection and try again.');
+      setError('Evaluation failed. Please try again.');
       console.error(err);
     } finally {
       setIsGrading(false);
     }
   };
 
-  const renderAnnotatedText = (text: string, highlights: Highlight[]) => {
-    let lastIndex = 0;
-    const parts = [];
-    const sortedHighlights = [...highlights].sort((a, b) => text.indexOf(a.phrase) - text.indexOf(b.phrase));
-
-    sortedHighlights.forEach((h, idx) => {
-      const index = text.indexOf(h.phrase, lastIndex);
-      if (index === -1) return;
-      parts.push(text.substring(lastIndex, index));
-      const typeColors = {
-        topic: 'bg-blue-100 border-blue-200 text-blue-800',
-        linking: 'bg-purple-100 border-purple-200 text-purple-800',
-        vocab: 'bg-emerald-100 border-emerald-200 text-emerald-800',
-        grammar: 'bg-amber-100 border-amber-200 text-amber-800'
-      };
-      parts.push(
-        <span 
-          key={idx}
-          onClick={() => setActiveHighlight(h)}
-          className={`px-1 rounded-md border cursor-help transition-all hover:brightness-95 ${typeColors[h.type as keyof typeof typeColors]}`}
-        >
-          {h.phrase}
-        </span>
-      );
-      lastIndex = index + h.phrase.length;
-    });
-    parts.push(text.substring(lastIndex));
-    return <p className="whitespace-pre-wrap leading-relaxed text-slate-700">{parts}</p>;
-  };
-
-  const filteredTasks = WRITING_TASKS.filter(task => {
-    if (activeCategory === 'all') return true;
-    if (activeCategory === 'task1') return task.type.includes('TASK_1');
-    if (activeCategory === 'task2') return task.type === TaskType.WRITING_TASK_2;
-    return true;
-  });
-
   if (feedback) {
     const isTask1 = selectedTask?.type.includes('TASK_1');
     const module = feedback.learningModule;
 
     return (
-      <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="flex justify-between items-center mb-6">
           <div className="flex gap-1 bg-slate-200 p-1 rounded-2xl">
-            <button 
-              onClick={() => setActiveView('feedback')}
-              className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${activeView === 'feedback' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-            >
-              My Feedback
-            </button>
-            {(selectedTask?.modelAnswer || module) && (
-              <button 
-                onClick={() => setActiveView('model')}
-                className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${activeView === 'model' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                Study Module
-              </button>
-            )}
+            <button onClick={() => setActiveView('feedback')} className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${activeView === 'feedback' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500'}`}>My Feedback</button>
+            <button onClick={() => setActiveView('model')} className={`px-6 py-2 rounded-xl text-sm font-bold transition-all ${activeView === 'model' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500'}`}>Study Module</button>
           </div>
-          <button 
-            onClick={() => setFeedback(null)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-sm font-bold hover:bg-blue-100 transition-colors"
-          >
-            <Edit3 className="w-4 h-4" />
-            Revise Essay
+          <button onClick={() => setFeedback(null)} className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-xl text-sm font-bold hover:bg-blue-100 transition-colors">
+            <Edit3 className="w-4 h-4" /> Revise Essay
           </button>
         </div>
 
         {activeView === 'feedback' ? (
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden mb-8">
-            <div className="bg-blue-600 px-8 py-10 text-white flex justify-between items-center">
-              <div>
-                <h2 className="text-3xl font-bold mb-1">Results</h2>
-                <p className="opacity-90">Detailed analysis of your {isTask1 ? 'Task 1 response' : 'Task 2 essay'}.</p>
-              </div>
-              <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 text-center min-w-[100px]">
-                <div className="text-4xl font-black">{feedback.overall}</div>
-                <div className="text-[10px] font-bold tracking-widest uppercase opacity-80">Estimated Band</div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10">
+            {/* Primary Scores */}
+            <div className="lg:col-span-8 space-y-8">
+              <div className="bg-white rounded-[40px] border border-slate-200 shadow-sm overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-10 py-12 text-white flex justify-between items-center">
+                  <div>
+                    <h2 className="text-4xl font-black mb-1">Band Score: {feedback.overall}</h2>
+                    <p className="text-blue-100 font-medium">Expert examiner evaluation grounded in Academic Standards.</p>
+                  </div>
+                  <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 text-center min-w-[120px]">
+                    <Sparkles className="w-6 h-6 mx-auto mb-2 text-blue-200" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest block opacity-70">Status</span>
+                    <span className="text-sm font-bold">QUALIFIED</span>
+                  </div>
+                </div>
+                <div className="p-10">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+                    {[
+                      { label: isTask1 ? 'Task Achievement' : 'Task Response', score: feedback.task_response },
+                      { label: 'Cohesion', score: feedback.coherence },
+                      { label: 'Lexical', score: feedback.lexical },
+                      { label: 'Grammar', score: feedback.grammar }
+                    ].map((item) => (
+                      <div key={item.label} className="bg-slate-50 p-6 rounded-3xl border border-slate-100 group hover:border-blue-200 transition-all">
+                        <p className="text-[10px] text-slate-400 font-bold mb-1 uppercase tracking-widest">{item.label}</p>
+                        <p className="text-3xl font-black text-slate-800">{item.score}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-10">
+                    <section>
+                      <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                          <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                        </div>
+                        Key Strengths
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {feedback.strengths.map((s, i) => (
+                          <div key={i} className="text-sm text-slate-600 bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 flex gap-3">
+                            <span className="text-emerald-500 font-bold">•</span>
+                            {s}
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+
+                    <section>
+                      <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+                          <AlertCircle className="w-5 h-5 text-amber-600" />
+                        </div>
+                        Critical Improvement Areas
+                      </h3>
+                      <div className="space-y-4">
+                        {feedback.improvements.map((imp, i) => (
+                          <div key={i} className="text-sm text-slate-600 bg-amber-50/30 p-5 rounded-2xl border border-amber-100 flex gap-4">
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-[10px] font-bold">
+                              {i+1}
+                            </div>
+                            {imp}
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <div className="p-8">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                {[
-                  { label: isTask1 ? 'Task Achievement' : 'Task Response', score: feedback.task_response },
-                  { label: 'Coherence', score: feedback.coherence },
-                  { label: 'Lexical', score: feedback.lexical },
-                  { label: 'Grammar', score: feedback.grammar },
-                ].map((item) => (
-                  <div key={item.label} className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                    <p className="text-xs text-slate-500 font-medium mb-1 uppercase tracking-tight">{item.label}</p>
-                    <p className="text-2xl font-bold text-slate-800">{item.score}</p>
+
+            {/* Sidebar Resources */}
+            <div className="lg:col-span-4 space-y-6">
+              <div className="bg-slate-900 rounded-[40px] p-8 text-white shadow-xl sticky top-8">
+                <div className="flex items-center gap-3 mb-8">
+                  <div className="bg-blue-600 p-3 rounded-2xl">
+                    <Globe className="w-6 h-6" />
                   </div>
-                ))}
-              </div>
+                  <div>
+                    <h3 className="text-lg font-bold">Reference Sources</h3>
+                    <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold">Grounded Analysis</p>
+                  </div>
+                </div>
 
-              <div className="space-y-6">
-                <section>
-                  <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                    Key Strengths
-                  </h3>
-                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {feedback.strengths.map((s, i) => (
-                      <li key={i} className="flex gap-2 text-sm text-slate-600 bg-emerald-50 p-3 rounded-xl">
-                        <span className="text-emerald-500 font-bold">•</span>
-                        {s}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
+                <div className="space-y-4">
+                  {feedback.groundingLinks && feedback.groundingLinks.length > 0 ? (
+                    feedback.groundingLinks.map((link, idx) => (
+                      <a 
+                        key={idx} 
+                        href={link.uri} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="block bg-white/5 p-5 rounded-3xl border border-white/10 hover:bg-white/10 hover:border-blue-500/50 transition-all group"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest">Resource {idx + 1}</span>
+                          <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-blue-400" />
+                        </div>
+                        <h4 className="text-sm font-bold text-slate-100 line-clamp-2 leading-snug">{link.title}</h4>
+                        <p className="mt-3 text-[10px] text-slate-500 truncate">{new URL(link.uri).hostname}</p>
+                      </a>
+                    ))
+                  ) : (
+                    <div className="text-center py-10 border-2 border-dashed border-white/5 rounded-3xl">
+                      <p className="text-xs text-slate-500 italic">No external links found.</p>
+                    </div>
+                  )}
+                </div>
 
-                <section>
-                  <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-amber-500" />
-                    Areas for Improvement
-                  </h3>
-                  <ul className="space-y-3">
-                    {feedback.improvements.map((imp, i) => (
-                      <li key={i} className="flex gap-2 text-sm text-slate-600 bg-amber-50 p-3 rounded-xl border border-amber-100">
-                        <span className="text-amber-500 font-bold">{i+1}.</span>
-                        {imp}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
+                <div className="mt-8 pt-8 border-t border-white/10 text-center">
+                  <button 
+                    onClick={() => setFeedback(null)}
+                    className="w-full py-4 bg-white text-slate-900 rounded-2xl font-black text-sm hover:bg-blue-50 transition-all flex items-center justify-center gap-2"
+                  >
+                    <PenTool className="w-4 h-4" /> REWRITE NOW
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         ) : (
           <div className="space-y-8 pb-10">
-            {isTask1 && module ? (
-              <>
-                {/* Task Identification */}
-                <div className="bg-blue-600 p-8 rounded-3xl text-white shadow-lg">
-                  <div className="flex items-center gap-2 mb-4 opacity-80">
-                    <ClipboardCheck className="w-5 h-5" />
-                    <span className="text-xs font-bold uppercase tracking-widest">Task Identification</span>
-                  </div>
-                  <h3 className="text-2xl font-bold mb-2">{module.taskIdentification.type}</h3>
-                  <p className="text-blue-100 text-sm leading-relaxed">{module.taskIdentification.trends}</p>
-                </div>
-
-                {/* Sample Answer */}
-                <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
-                  <div className="bg-slate-900 px-8 py-6 text-white flex justify-between items-center">
-                    <h3 className="font-bold flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-amber-400" />
-                      Band 8-9 Sample Answer
-                    </h3>
-                    <span className="text-xs font-bold px-3 py-1 bg-white/10 rounded-full">~{module.sampleAnswer.split(' ').length} words</span>
-                  </div>
-                  <div className="p-8 bg-slate-50 text-slate-700 leading-relaxed italic whitespace-pre-wrap">
-                    {module.sampleAnswer}
-                  </div>
-                </div>
-
-                {/* Criteria-Based Explanation */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-white p-8 rounded-3xl border border-slate-200">
-                    <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                      <GraduationCap className="w-5 h-5 text-blue-600" />
-                      Examiner Score Explanation
-                    </h3>
-                    <div className="space-y-6">
-                      {[
-                        { label: 'Task Achievement', text: module.scoreExplanation.ta },
-                        { label: 'Coherence & Cohesion', text: module.scoreExplanation.cc },
-                        { label: 'Lexical Resource', text: module.scoreExplanation.lr },
-                        { label: 'Grammatical Accuracy', text: module.scoreExplanation.gra },
-                      ].map((exp) => (
-                        <div key={exp.label}>
-                          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{exp.label}</h4>
-                          <p className="text-sm text-slate-600 leading-relaxed">{exp.text}</p>
-                        </div>
-                      ))}
+            {/* Model Answer / Module Views */}
+            {module && (
+               <div className="max-w-4xl mx-auto space-y-10">
+                 <div className="bg-blue-600 p-10 rounded-[40px] text-white shadow-xl">
+                    <h3 className="text-3xl font-black mb-4">{module.taskIdentification.type}</h3>
+                    <p className="text-blue-100 text-lg leading-relaxed">{module.taskIdentification.trends}</p>
+                 </div>
+                 <div className="bg-white rounded-[40px] border border-slate-200 overflow-hidden shadow-sm">
+                    <div className="bg-slate-900 px-10 py-6 text-white font-black text-sm tracking-widest uppercase">Expert Sample Answer (Band 8.5+)</div>
+                    <div className="p-10 bg-slate-50 italic text-lg leading-relaxed text-slate-700 whitespace-pre-wrap">
+                      {module.sampleAnswer}
                     </div>
-                  </div>
-
-                  <div className="space-y-6">
-                    {/* Language Bank */}
-                    <div className="bg-slate-900 text-white p-8 rounded-3xl">
-                      <h3 className="text-lg font-bold mb-4 flex items-center gap-2 text-blue-400">
-                        <Lightbulb className="w-5 h-5" />
-                        Key Language to Learn
-                      </h3>
-                      <div className="grid gap-3">
-                        {module.improvementGuide.language.map((lang, i) => (
-                          <div key={i} className="bg-white/5 p-3 rounded-xl border border-white/10">
-                            <span className="text-sm font-bold text-blue-300 block">{lang.word}</span>
-                            <span className="text-xs text-slate-400">{lang.explanation}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    {/* Common Mistakes */}
-                    <div className="bg-red-50 p-8 rounded-3xl border border-red-100">
-                      <h3 className="text-sm font-bold text-red-600 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <AlertCircle className="w-4 h-4" />
-                        Common Band 6 Mistakes
-                      </h3>
-                      <ul className="space-y-3">
-                        {module.improvementGuide.commonMistakes.map((m, i) => (
-                          <li key={i} className="text-xs text-red-800 leading-relaxed flex gap-2">
-                            <span className="font-bold">•</span>
-                            {m}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Band Upgrades */}
-                <div className="bg-white p-8 rounded-3xl border border-slate-200">
-                  <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                    <ArrowUpCircle className="w-5 h-5 text-emerald-500" />
-                    Band Upgrade Comparisons
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {module.bandUpgrades.map((upgrade, i) => (
-                      <div key={i} className="bg-slate-50 rounded-2xl overflow-hidden border border-slate-100">
-                        <div className="p-4 bg-red-50/50">
-                          <span className="text-[10px] font-bold text-red-500 uppercase tracking-widest">Band 6 Version</span>
-                          <p className="text-sm text-slate-600 italic mt-1">"{upgrade.low}"</p>
-                        </div>
-                        <div className="p-4 bg-emerald-50/50">
-                          <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">Band 9 Version</span>
-                          <p className="text-sm text-slate-900 font-medium mt-1">"{upgrade.high}"</p>
-                        </div>
-                        <div className="p-4 border-t border-slate-100">
-                          <p className="text-[10px] text-slate-400 leading-relaxed">{upgrade.explanation}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Examiner Notes */}
-                <div className="bg-amber-50 p-8 rounded-3xl border border-amber-200">
-                  <h3 className="text-lg font-bold text-amber-800 mb-4 flex items-center gap-2">
-                    <Info className="w-5 h-5" />
-                    Examiner Study Tips
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {module.examinerNotes.map((note, i) => (
-                      <div key={i} className="bg-white/50 p-4 rounded-2xl border border-amber-200 text-sm text-amber-900 font-medium">
-                        {note}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Practice Task */}
-                <div className="bg-slate-900 text-white p-10 rounded-3xl text-center">
-                  <h3 className="text-xl font-bold mb-4">Final Challenge</h3>
-                  <p className="text-slate-400 mb-6 max-w-xl mx-auto">{module.practiceTask}</p>
-                  <button 
-                    onClick={() => {setFeedback(null);}}
-                    className="px-8 py-3 bg-blue-600 rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center gap-2 mx-auto"
-                  >
-                    <PenTool className="w-4 h-4" />
-                    Rewrite and Resubmit
-                  </button>
-                </div>
-              </>
-            ) : (
-              /* Original Task 2 Model Answer View */
-              <div className="space-y-8">
-                {selectedTask?.modelAnswer && (
-                  <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                    <div className="bg-slate-900 px-8 py-8 text-white flex justify-between items-center">
-                      <h2 className="text-2xl font-bold flex items-center gap-2">
-                        <Sparkles className="w-6 h-6 text-amber-400" />
-                        Band 9 Model Answer
-                      </h2>
-                      <span className="text-xl font-black">9.0</span>
-                    </div>
-                    <div className="p-8 lg:p-12">
-                      {renderAnnotatedText(selectedTask.modelAnswer.text, selectedTask.modelAnswer.highlights)}
-                    </div>
-                  </div>
-                )}
-              </div>
+                 </div>
+               </div>
             )}
           </div>
         )}
-        
-        <div className="flex gap-4 mb-10">
-          <button 
-            onClick={() => {setFeedback(null); setEssay(''); setSelectedTask(null);}}
-            className="flex-1 py-4 bg-slate-800 text-white rounded-2xl font-bold hover:bg-slate-900 transition-colors flex items-center justify-center gap-2"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Try a Different Task
-          </button>
-        </div>
       </div>
     );
   }
 
   if (!selectedTask) {
     return (
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">Writing Practice</h1>
-          <p className="text-slate-500">Master Task 1 (Data/Letters) and Task 2 (Essays) with AI coaching.</p>
+      <div className="max-w-5xl mx-auto py-10">
+        <header className="mb-12">
+          <h1 className="text-4xl font-black text-slate-900 mb-3 tracking-tight">Writing Masterclass</h1>
+          <p className="text-slate-500 text-lg">Harness real-time AI guidance and elite Academic resources.</p>
         </header>
-
-        <div className="flex gap-2 mb-8 bg-slate-200 p-1 rounded-2xl w-fit">
-          <button 
-            onClick={() => setActiveCategory('all')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeCategory === 'all' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500'}`}
-          >
-            All Tasks
-          </button>
-          <button 
-            onClick={() => setActiveCategory('task1')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeCategory === 'task1' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500'}`}
-          >
-            Task 1 (Data/Letter)
-          </button>
-          <button 
-            onClick={() => setActiveCategory('task2')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${activeCategory === 'task2' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500'}`}
-          >
-            Task 2 (Essay)
-          </button>
-        </div>
-
-        <div className="grid gap-4">
-          {filteredTasks.map((task) => (
-            <button
-              key={task.id}
-              onClick={() => setSelectedTask(task)}
-              className="bg-white p-6 rounded-3xl border border-slate-200 text-left hover:border-blue-400 hover:shadow-md transition-all group flex items-center justify-between"
+        <div className="flex gap-2 mb-10 bg-slate-200 p-1 rounded-[24px] w-fit shadow-inner">
+          {['all', 'task1', 'task2'].map((cat) => (
+            <button 
+              key={cat} 
+              onClick={() => setActiveCategory(cat as any)} 
+              className={`px-8 py-3 rounded-[20px] text-sm font-black transition-all ${
+                activeCategory === cat ? 'bg-white text-blue-600 shadow-xl' : 'text-slate-500'
+              }`}
             >
-              <div className="flex-1 pr-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className={`inline-block px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full ${
-                    task.type === TaskType.WRITING_TASK_2 ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
-                  }`}>
-                    {task.type === TaskType.WRITING_TASK_2 ? 'Task 2 Essay' : 
-                     task.type === TaskType.WRITING_TASK_1_ACADEMIC ? 'Task 1 Academic' : 'Task 1 General'}
-                  </span>
-                  <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{task.topic}</span>
+              {cat === 'all' ? 'All Modules' : cat === 'task1' ? 'Task 1 (Data)' : 'Task 2 (Essays)'}
+            </button>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {WRITING_TASKS.filter(t => activeCategory === 'all' || (activeCategory === 'task1' ? t.type.includes('TASK_1') : t.type === TaskType.WRITING_TASK_2)).map((task) => (
+            <button 
+              key={task.id} 
+              onClick={() => setSelectedTask(task)} 
+              className="bg-white p-8 rounded-[32px] border border-slate-200 text-left hover:border-blue-500 hover:shadow-2xl hover:shadow-blue-900/5 transition-all flex flex-col group h-full"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest">{task.topic}</span>
+                <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all">
+                  <ChevronRight className="w-5 h-5" />
                 </div>
-                <p className="text-slate-700 font-medium leading-relaxed">{task.question}</p>
               </div>
-              <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
-                {task.type === TaskType.WRITING_TASK_2 ? <FileText className="w-5 h-5" /> : 
-                 task.type === TaskType.WRITING_TASK_1_ACADEMIC ? <LineChartIcon className="w-5 h-5" /> : <Mail className="w-5 h-5" />}
+              <p className="text-slate-800 font-bold text-lg leading-snug line-clamp-3 mb-6 flex-1">"{task.question}"</p>
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                <Clock className="w-4 h-4" /> {task.type.includes('TASK_1') ? '20 Mins' : '40 Mins'}
               </div>
             </button>
           ))}
@@ -468,154 +409,196 @@ const WritingSection: React.FC = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto h-full flex flex-col">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="max-w-screen-2xl mx-auto flex flex-col h-full animate-in fade-in duration-500">
+      <div className="mb-8 flex items-center justify-between">
         <button 
-          onClick={() => setSelectedTask(null)}
-          className="text-slate-500 text-sm hover:text-slate-800 flex items-center gap-1 group"
+          onClick={() => setSelectedTask(null)} 
+          className="text-slate-500 font-bold flex items-center gap-2 hover:text-slate-900 transition-colors group"
         >
-          <ChevronRight className="w-4 h-4 rotate-180 group-hover:-translate-x-1 transition-transform" />
-          Back to list
+          <ChevronRight className="w-5 h-5 rotate-180 group-hover:-translate-x-1 transition-transform" /> 
+          Task Library
         </button>
-        <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
-          <div className="text-right">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Word Count</span>
-            <span className={`text-sm font-black ${
-              (selectedTask.type === TaskType.WRITING_TASK_2 && wordCount >= 250) || 
-              (selectedTask.type !== TaskType.WRITING_TASK_2 && wordCount >= 150) ? 'text-emerald-500' : 'text-amber-500'
-            }`}>
-              {wordCount} <span className="text-slate-300 font-medium">/ {selectedTask.type === TaskType.WRITING_TASK_2 ? '250' : '150'}</span>
-            </span>
-          </div>
+        <div className="flex items-center gap-4">
+           {lastSaved && (
+             <span className="text-[10px] font-bold text-slate-400 animate-in fade-in slide-in-from-right-2">
+               Auto-saved {lastSaved.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+             </span>
+           )}
+           <div className="bg-white px-6 py-2 rounded-2xl border border-slate-200 font-black text-blue-600 shadow-sm flex items-center gap-2">
+             <Zap className="w-4 h-4" />
+             {wordCount} Words
+           </div>
         </div>
       </div>
 
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-[500px] mb-8">
-        {/* Prompt Card */}
-        <div className="lg:col-span-5 flex flex-col gap-4 sticky top-0 h-fit">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="bg-slate-900 px-6 py-4 text-white flex justify-between items-center">
-               <h3 className="text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                 <ClipboardCheck className="w-4 h-4 text-blue-400" />
-                 Task Instructions
-               </h3>
-               <span className="text-[10px] font-bold text-slate-400">{selectedTask.type.includes('TASK_1') ? '20 MINS' : '40 MINS'}</span>
+      {showDraftBanner && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-3xl flex items-center justify-between animate-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center gap-3">
+            <div className="bg-amber-100 p-2 rounded-xl text-amber-600">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-amber-900">Incomplete Draft Found</p>
+              <p className="text-xs text-amber-700">Would you like to resume where you left off?</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={handleDiscardDraft}
+              className="px-4 py-2 text-xs font-bold text-slate-500 hover:text-red-600 transition-colors"
+            >
+              Discard
+            </button>
+            <button 
+              onClick={handleLoadDraft}
+              className="px-6 py-2 bg-amber-600 text-white rounded-xl text-xs font-black shadow-lg shadow-amber-200 hover:bg-amber-700 transition-all active:scale-95"
+            >
+              Load Draft
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 flex-1 pb-10">
+        {/* Left Column: Stimulus */}
+        <div className="lg:col-span-3 flex flex-col gap-6 sticky top-0 h-fit">
+          <div className="bg-white rounded-[32px] border border-slate-200 shadow-sm overflow-hidden">
+            <div className="bg-slate-900 px-6 py-4 text-white text-[10px] font-black tracking-widest flex items-center gap-2">
+              <ClipboardCheck className="w-4 h-4 text-blue-400" /> TASK PROMPT
             </div>
             <div className="p-6">
-              <p className="text-slate-700 text-sm leading-relaxed font-medium mb-4 italic">
-                "{selectedTask.question}"
-              </p>
-              
+              <p className="text-slate-700 text-sm leading-relaxed font-bold italic mb-6">"{selectedTask.question}"</p>
               {selectedTask.chartConfig && (
-                <div className="animate-in fade-in slide-in-from-top-4 duration-700">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                      <ChartBar className="w-3 h-3" />
-                      Visual Data
-                    </h3>
-                    <button 
-                      onClick={() => setShowDataTable(!showDataTable)}
-                      className="text-[10px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
-                    >
-                      {showDataTable ? <ChartBar className="w-3 h-3" /> : <TableIcon className="w-3 h-3" />}
-                      {showDataTable ? 'VIEW GRAPH' : 'VIEW DATA TABLE'}
-                    </button>
-                  </div>
-                  
-                  {showDataTable ? (
-                    <div className="mt-4 border border-slate-100 rounded-xl overflow-hidden overflow-x-auto">
-                      <table className="w-full text-[10px] text-left">
-                        <thead className="bg-slate-50 border-b border-slate-100">
-                          <tr>
-                            <th className="px-3 py-2 font-bold text-slate-500 uppercase">{selectedTask.chartConfig.xAxisKey}</th>
-                            {selectedTask.chartConfig.dataKeys.map(key => (
-                              <th key={key} className="px-3 py-2 font-bold text-slate-500 uppercase">{key}</th>
-                            ))}
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                          {selectedTask.chartConfig.data.map((row, idx) => (
-                            <tr key={idx}>
-                              <td className="px-3 py-2 font-bold text-slate-800">{row[selectedTask.chartConfig!.xAxisKey]}</td>
-                              {selectedTask.chartConfig!.dataKeys.map(key => (
-                                <td key={key} className="px-3 py-2 text-slate-600">{row[key]}</td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <div className="bg-slate-50 rounded-2xl p-2 border border-slate-100">
-                      <Task1Chart config={selectedTask.chartConfig} />
-                    </div>
-                  )}
-                </div>
+                 <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                    <Task1Chart config={selectedTask.chartConfig} />
+                 </div>
               )}
             </div>
           </div>
 
-          {/* Quick Tips */}
-          <div className="bg-amber-50 p-6 rounded-3xl border border-amber-200 hidden lg:block">
-            <h4 className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-              <Lightbulb className="w-3 h-3" />
-              Writing Tip
-            </h4>
-            <p className="text-xs text-amber-800 leading-relaxed font-medium">
-              {selectedTask.type === TaskType.WRITING_TASK_2 
-                ? "Ensure you have a clear thesis statement in your introduction and a balanced discussion in the body paragraphs."
-                : "Focus on summarizing trends and making comparisons. Avoid listing every single data point in your report."}
-            </p>
+          <div className="bg-emerald-50 border border-emerald-200 rounded-[32px] p-6">
+             <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+               <Globe className="w-4 h-4" /> Reference Links
+             </h4>
+             <div className="space-y-3">
+               {isLoadingResources ? (
+                 <div className="flex items-center gap-2 text-emerald-400 text-[10px] font-bold py-4">
+                   <Loader2 className="w-3 h-3 animate-spin" /> Fetching real-world samples...
+                 </div>
+               ) : (
+                 taskResources.slice(0, 3).map((res, i) => (
+                   <a key={i} href={res.uri} target="_blank" rel="noopener noreferrer" className="block bg-white p-4 rounded-2xl border border-emerald-100 hover:border-emerald-400 transition-all group">
+                     <h5 className="text-[10px] font-black text-slate-800 line-clamp-1 group-hover:text-emerald-600">{res.title}</h5>
+                     <span className="text-[8px] text-slate-400 font-bold mt-1 block uppercase">{new URL(res.uri).hostname}</span>
+                   </a>
+                 ))
+               )}
+             </div>
           </div>
         </div>
 
-        {/* Editor */}
-        <div className="lg:col-span-7 flex flex-col bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-50 transition-all">
-          <div className="bg-slate-50 px-8 py-4 border-b border-slate-200 flex justify-between items-center">
-            <h3 className="text-sm font-bold text-slate-800">Your Response</h3>
-            <div className="flex gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">Live Saving Enabled</span>
+        {/* Center Column: Editor */}
+        <div className="lg:col-span-6 flex flex-col bg-white rounded-[40px] border border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden focus-within:border-blue-400 transition-all relative">
+          <div className="bg-slate-50 px-10 py-5 border-b border-slate-200 flex justify-between items-center">
+            <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
+               <PenTool className="w-4 h-4 text-blue-600" /> DRAFTING AREA
+            </h3>
+            <div className="flex items-center gap-4">
+              <button 
+                onClick={handleSaveDraft}
+                className="text-[10px] text-slate-500 font-black tracking-widest flex items-center gap-2 hover:text-blue-600 transition-colors"
+              >
+                <Save className="w-3 h-3" />
+                SAVE DRAFT
+              </button>
+              <span className="text-[10px] text-slate-400 font-black tracking-widest flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                AUTOSAVE ACTIVE
+              </span>
             </div>
           </div>
-          
           <textarea
             value={essay}
             onChange={(e) => setEssay(e.target.value)}
             disabled={isGrading}
             spellCheck={false}
-            placeholder={`Start writing your ${selectedTask.type.includes('TASK_1') ? 'report or letter' : 'essay'} here...`}
-            className="flex-1 p-8 text-lg leading-relaxed text-slate-700 focus:outline-none resize-none placeholder:text-slate-300 min-h-[300px]"
+            placeholder="Structure your response: Introduction, Overview, Details, Conclusion..."
+            className="flex-1 p-10 text-xl leading-relaxed text-slate-700 focus:outline-none resize-none placeholder:text-slate-200 min-h-[500px]"
           />
+          <div className="p-8 bg-slate-50 border-t border-slate-200 flex flex-col gap-4">
+            {error && <div className="text-red-500 text-sm font-black flex items-center gap-2"><AlertCircle className="w-4 h-4" /> {error}</div>}
+            <div className="flex gap-4">
+              <button 
+                onClick={handleSubmit} 
+                disabled={isGrading || !essay.trim()} 
+                className={`flex-1 py-5 rounded-[24px] font-black text-xl transition-all flex items-center justify-center gap-3 shadow-2xl ${
+                  isGrading || !essay.trim() 
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' 
+                    : 'bg-blue-600 text-white hover:bg-blue-700 shadow-blue-200 active:scale-95'
+                }`}
+              >
+                {isGrading ? <><Loader2 className="w-6 h-6 animate-spin" /> GENERATING BAND SCORE...</> : <><Send className="w-6 h-6" /> ANALYZE RESPONSE</>}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: AI Copilot */}
+        <div className="lg:col-span-3 flex flex-col gap-6">
+          <div className="bg-blue-50 border border-blue-200 rounded-[32px] p-8 min-h-[400px] flex flex-col">
+             <div className="flex items-center gap-3 mb-8">
+               <div className="bg-blue-600 p-2 rounded-xl">
+                 <Cpu className="w-5 h-5 text-white" />
+               </div>
+               <div>
+                 <h4 className="text-sm font-black text-blue-900">AI COPILOT</h4>
+                 <p className="text-[9px] font-bold text-blue-400 uppercase tracking-widest">Live Coaching</p>
+               </div>
+             </div>
+
+             <div className="flex-1 space-y-6">
+                {isLiveLoading ? (
+                  <div className="space-y-4">
+                    <div className="h-12 bg-blue-100 rounded-2xl animate-pulse"></div>
+                    <div className="h-12 bg-blue-100 rounded-2xl animate-pulse w-3/4"></div>
+                  </div>
+                ) : essay.length > 50 ? (
+                  liveSuggestions.length > 0 ? (
+                    <div className="space-y-4 animate-in slide-in-from-right-4 duration-500">
+                       {liveSuggestions.map((tip, i) => (
+                         <div key={i} className="bg-white p-4 rounded-2xl border border-blue-100 shadow-sm flex gap-3 group hover:border-blue-400 transition-all">
+                           <div className="mt-1"><Zap className="w-3 h-3 text-blue-500" /></div>
+                           <p className="text-xs font-bold text-blue-900 leading-snug">{tip}</p>
+                         </div>
+                       ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-blue-400 italic text-center py-10 leading-relaxed px-4">AI is observing... Keep writing to get structural hints.</p>
+                  )
+                ) : (
+                  <div className="text-center py-10 px-4">
+                    <Lightbulb className="w-10 h-10 text-blue-200 mx-auto mb-4" />
+                    <p className="text-[11px] text-blue-400 font-bold uppercase tracking-wider mb-2">Write 50+ words</p>
+                    <p className="text-xs text-blue-800/60 leading-relaxed font-medium">Start drafting to activate real-time tactical suggestions.</p>
+                  </div>
+                )}
+             </div>
+
+             <div className="mt-8 pt-8 border-t border-blue-100">
+                <div className="bg-blue-100/50 p-4 rounded-2xl flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-black text-xs">9.0</div>
+                  <p className="text-[10px] font-bold text-blue-900 leading-tight">Focus on using complex transitions to increase Cohesion score.</p>
+                </div>
+             </div>
+          </div>
           
-          <div className="p-6 bg-slate-50 border-t border-slate-200">
-            {error && (
-              <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-xl flex items-center gap-2 text-sm font-medium border border-red-100 animate-in fade-in slide-in-from-top-1">
-                <AlertCircle className="w-4 h-4" />
-                {error}
-              </div>
-            )}
-            <button
-              onClick={handleSubmit}
-              disabled={isGrading || essay.trim().length === 0}
-              className={`w-full flex items-center justify-center gap-3 px-10 py-4 rounded-2xl font-black text-lg transition-all shadow-xl group ${
-                isGrading || essay.trim().length === 0
-                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                  : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-blue-200'
-              }`}
-            >
-              {isGrading ? (
-                <>
-                  <Loader2 className="w-6 h-6 animate-spin" />
-                  Analyzing Your Writing...
-                </>
-              ) : (
-                <>
-                  <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                  Submit for Evaluation
-                </>
-              )}
-            </button>
+          <div className="bg-slate-100 p-8 rounded-[32px] border border-slate-200">
+             <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Writing Tip</h4>
+             <p className="text-xs text-slate-600 leading-relaxed font-bold">
+               {selectedTask.type.includes('TASK_1') 
+                 ? "Avoid listing every number. Use terms like 'peaked at', 'leveled off', or 'significant fluctuation'." 
+                 : "Ensure each body paragraph has a clear topic sentence and is developed with a logical example."}
+             </p>
           </div>
         </div>
       </div>

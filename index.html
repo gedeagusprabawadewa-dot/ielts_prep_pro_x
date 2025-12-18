@@ -6,6 +6,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>IELTS Prep Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                DEFAULT: 'rgb(var(--brand-primary) / <alpha-value>)',
+                hover: 'rgb(var(--brand-hover) / <alpha-value>)',
+                soft: 'rgb(var(--brand-soft) / <alpha-value>)',
+              }
+            },
+            borderRadius: {
+              '4xl': '2rem',
+              '5xl': '2.5rem',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      /* Theme Presets */
+      :root {
+        --brand-primary: 37 99 235; /* Blue 600 */
+        --brand-hover: 29 78 216;   /* Blue 700 */
+        --brand-soft: 239 246 255;  /* Blue 50 */
+      }
+      .theme-emerald {
+        --brand-primary: 16 185 129; /* Emerald 500 */
+        --brand-hover: 5 150 105;    /* Emerald 600 */
+        --brand-soft: 236 253 245;   /* Emerald 50 */
+      }
+      .theme-indigo {
+        --brand-primary: 79 70 229;  /* Indigo 600 */
+        --brand-hover: 67 56 202;    /* Indigo 700 */
+        --brand-soft: 238 242 255;   /* Indigo 50 */
+      }
+      .theme-rose {
+        --brand-primary: 225 29 72;   /* Rose 600 */
+        --brand-hover: 190 18 60;    /* Rose 700 */
+        --brand-soft: 255 241 242;   /* Rose 50 */
+      }
+      
+      /* Dark mode overrides for soft backgrounds */
+      .dark .theme-blue { --brand-soft: 30 58 138 / 0.2; }
+      .dark .theme-emerald { --brand-soft: 6 78 59 / 0.2; }
+      .dark .theme-indigo { --brand-soft: 49 46 129 / 0.2; }
+      .dark .theme-rose { --brand-soft: 136 19 55 / 0.2; }
+
+      body { transition: background-color 0.3s ease, color 0.3s ease; }
+    </style>
   <script type="importmap">
 {
   "imports": {
@@ -19,7 +70,7 @@
 }
 </script>
 </head>
-  <body class="bg-slate-50 text-slate-900">
+  <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
     <div id="root"></div>
   </body>
 </html>

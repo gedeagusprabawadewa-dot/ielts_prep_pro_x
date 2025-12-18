@@ -6,9 +6,17 @@ export enum TaskType {
   SPEAKING = 'SPEAKING'
 }
 
+export type AppTheme = 'light' | 'dark';
+export type AccentColor = 'blue' | 'emerald' | 'indigo' | 'rose';
+
 export interface ChartDataItem {
   name: string;
   [key: string]: string | number;
+}
+
+export interface GroundingLink {
+  title: string;
+  uri: string;
 }
 
 export interface WritingTask {
@@ -92,6 +100,7 @@ export interface WritingFeedback {
   weaknesses: string[];
   improvements: string[];
   learningModule?: Task1LearningModule;
+  groundingLinks?: GroundingLink[];
 }
 
 export interface SpeakingFeedback {
@@ -128,4 +137,6 @@ export interface User {
   id: string;
   email: string;
   targetBand?: number;
+  theme?: AppTheme;
+  accentColor?: AccentColor;
 }
