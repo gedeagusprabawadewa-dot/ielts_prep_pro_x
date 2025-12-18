@@ -88,7 +88,7 @@ export const evaluateWriting = async (essay: string, taskType: TaskType): Promis
       "weaknesses": [string],
       "improvements": [string],
       "learningModule": { 
-        "taskIdentification": { "type": string, "trends": string },
+        "taskIdentification": { "type": string, "dataType": string, "trends": string },
         "sampleAnswer": string,
         "scoreExplanation": { "ta": string, "cc": string, "lr": string, "gra": string },
         "keyVocabulary": [{"word": string, "explanation": string}],
@@ -102,6 +102,8 @@ export const evaluateWriting = async (essay: string, taskType: TaskType): Promis
         "practiceTask": string
       }
     }
+    
+    INSTRUCTION for taskIdentification: "type" is a descriptive title (e.g., 'Environmental Trends in Urban Cities'), "dataType" is the visual format (e.g., 'line graph', 'bar chart', 'pie chart', 'table', 'map', or 'process diagram').
     
     INSTRUCTION for keyVocabulary: Provide 5-8 high-level academic words or phrases useful for THIS SPECIFIC task type, with short usage explanations.
     

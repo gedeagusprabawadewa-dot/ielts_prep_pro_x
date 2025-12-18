@@ -11,7 +11,7 @@ import {
   GraduationCap, ArrowRight, Sparkles, Zap, 
   Mic, Moon, Sun, Quote, Trophy, MapPin, 
   Database, User as UserIcon, Loader2, AlertCircle, 
-  CheckCircle2, BookOpen, Library
+  CheckCircle2, BookOpen, Library, Mail, Heart, Info, Lightbulb
 } from 'lucide-react';
 
 const Testimonials = () => {
@@ -152,6 +152,12 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 transition-colors duration-300">
         <div className="max-w-7xl mx-auto">
+          {/* Beta Notice Banner */}
+          <div className="mb-12 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800 p-3 rounded-2xl flex items-center justify-center gap-3 animate-in fade-in slide-in-from-top-4">
+             <Info className="w-4 h-4 text-amber-600" />
+             <p className="text-xs font-bold text-amber-800 dark:text-amber-400">Application in <span className="underline decoration-amber-500 decoration-2">Trial & Beta</span> Mode — Currently under development in Bali.</p>
+          </div>
+
           {/* Hero Section */}
           <div className="flex flex-col lg:flex-row gap-12 mb-24 min-h-[70vh]">
             <div className="lg:w-1/2 flex flex-col justify-center">
@@ -159,7 +165,10 @@ const App: React.FC = () => {
                 <div className="bg-brand p-3 rounded-2xl shadow-xl shadow-brand/20">
                   <GraduationCap className="w-8 h-8 text-white" />
                 </div>
-                <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">IELTS Prep Pro</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">IELTS Prep Pro</span>
+                  <span className="px-2 py-0.5 bg-brand-soft text-brand text-[10px] font-black rounded-lg border border-brand/10">BETA</span>
+                </div>
               </div>
               
               <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white leading-[1.1] mb-6">
@@ -188,7 +197,13 @@ const App: React.FC = () => {
               </div>
 
               <div className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-200 dark:border-slate-800 shadow-2xl shadow-slate-200/50 dark:shadow-none max-w-md">
-                <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Get Started</h3>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xl font-black text-slate-900 dark:text-white">Get Started</h3>
+                  <div className="flex gap-2">
+                    <span className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-400 text-[8px] font-black rounded uppercase">Trial</span>
+                    <span className="px-2 py-0.5 bg-amber-100 text-amber-600 text-[8px] font-black rounded uppercase">Beta</span>
+                  </div>
+                </div>
                 <p className="text-xs text-slate-500 font-medium mb-6">Enter your email to create an instant session.</p>
 
                 <form onSubmit={handleStartTrial} className="space-y-4">
@@ -223,7 +238,7 @@ const App: React.FC = () => {
                     )}
                   </button>
                   <p className="text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest mt-4">
-                    No credit card required • Instant access
+                    Instant Alpha Access • Active Trial
                   </p>
                 </form>
               </div>
@@ -256,6 +271,64 @@ const App: React.FC = () => {
           </div>
 
           <Testimonials />
+
+          {/* Landing Footer Creator Info */}
+          <footer className="mt-24 pt-12 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-start justify-between gap-12 pb-12">
+            <div className="space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="bg-slate-100 dark:bg-slate-900 p-2 rounded-xl">
+                  <GraduationCap className="w-5 h-5 text-brand" />
+                </div>
+                <div>
+                  <p className="text-sm font-black text-slate-900 dark:text-white">IELTS Prep Pro</p>
+                  <p className="text-[9px] font-black text-amber-500 uppercase tracking-widest">Trial / Beta v0.1.2</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-500 max-w-xs leading-relaxed">
+                Empowering the next generation of Indonesian scholars with accessible, high-standard IELTS training. <br/>
+                <span className="text-amber-600 font-bold italic text-[10px]">*Still under development.</span>
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
+              <div className="flex flex-col items-start">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Creator</p>
+                <div className="space-y-2">
+                   <p className="text-sm font-bold text-slate-700 dark:text-slate-300">Dewa Prabawa</p>
+                   <p className="text-xs text-slate-500 flex items-center gap-2">
+                     <MapPin className="w-3.5 h-3.5" /> Bali, Ubud
+                   </p>
+                </div>
+              </div>
+              
+              <div className="flex flex-col items-start">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Contact</p>
+                <a href="mailto:balipastika@gmail.com" className="text-sm font-bold text-brand hover:underline flex items-center gap-2">
+                  <Mail className="w-4 h-4" /> balipastika@gmail.com
+                </a>
+              </div>
+
+              <div className="flex flex-col items-start">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Feedback Lab</p>
+                <a 
+                  href="mailto:balipastika@gmail.com?subject=IELTS%20Prep%20Pro%3A%20Feature%20Suggestion" 
+                  className="text-sm font-bold text-amber-600 hover:underline flex items-center gap-2"
+                >
+                  <Lightbulb className="w-4 h-4" /> Suggest Improvement
+                </a>
+              </div>
+
+              <div className="flex flex-col items-start">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Support Work</p>
+                <a 
+                  href="mailto:balipastika@gmail.com?subject=Supporting%20IELTS%20Prep%20Pro" 
+                  className="px-4 py-2 bg-brand/10 hover:bg-brand text-brand hover:text-white rounded-xl text-xs font-black transition-all flex items-center gap-2"
+                >
+                  <Heart className="w-3.5 h-3.5" /> DONATE VIA EMAIL
+                </a>
+              </div>
+            </div>
+          </footer>
         </div>
       </div>
     );

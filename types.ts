@@ -91,6 +91,7 @@ export interface LanguagePoint {
 export interface Task1LearningModule {
   taskIdentification: {
     type: string;
+    dataType: string;
     trends: string;
   };
   sampleAnswer: string;

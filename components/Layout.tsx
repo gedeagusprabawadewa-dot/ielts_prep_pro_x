@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BookOpen, Mic, LayoutDashboard, LogOut, GraduationCap, Moon, Sun, Palette, Library } from 'lucide-react';
+import { BookOpen, Mic, LayoutDashboard, LogOut, GraduationCap, Moon, Sun, Palette, Library, Mail, MapPin, User as UserIcon, Heart, ShieldAlert, Lightbulb } from 'lucide-react';
 import { AppTheme, AccentColor, AuthMode } from '../types';
 
 interface LayoutProps {
@@ -38,11 +38,14 @@ const Layout: React.FC<LayoutProps> = ({
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-300">
       {/* Sidebar */}
       <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col hidden md:flex transition-colors duration-300">
-        <div className="p-6 flex items-center gap-3">
-          <div className="bg-brand p-2 rounded-lg transition-colors">
-            <GraduationCap className="w-6 h-6 text-white" />
+        <div className="p-6 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-brand p-2 rounded-lg transition-colors">
+              <GraduationCap className="w-6 h-6 text-white" />
+            </div>
+            <span className="font-bold text-xl text-slate-800 dark:text-white tracking-tight">IELTS Prep</span>
           </div>
-          <span className="font-bold text-xl text-slate-800 dark:text-white tracking-tight">IELTS Prep</span>
+          <span className="px-1.5 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 text-[8px] font-black rounded uppercase tracking-tighter border border-amber-200 dark:border-amber-800">BETA</span>
         </div>
         
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
@@ -95,6 +98,20 @@ const Layout: React.FC<LayoutProps> = ({
               </div>
             </div>
           </div>
+
+          <div className="mx-4 mt-8 p-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 rounded-xl">
+            <div className="flex items-center gap-2 mb-1.5">
+              <ShieldAlert className="w-3 h-3 text-amber-600" />
+              <p className="text-[9px] font-black text-amber-700 uppercase tracking-wider">Dev Mode</p>
+            </div>
+            <p className="text-[8px] text-amber-600 font-medium leading-tight mb-2">This app is currently in Beta. Features are undergoing testing.</p>
+            <a 
+              href="mailto:balipastika@gmail.com?subject=IELTS%20Prep%20Pro%3A%20Feedback%20%26%20Suggestions" 
+              className="flex items-center gap-1.5 text-[8px] font-black text-amber-700 hover:text-amber-900 transition-colors uppercase tracking-widest"
+            >
+              <Lightbulb className="w-2.5 h-2.5" /> Share Feedback
+            </a>
+          </div>
         </nav>
 
         <div className="p-4 border-t border-slate-100 dark:border-slate-800">
@@ -104,16 +121,39 @@ const Layout: React.FC<LayoutProps> = ({
             </div>
             <div className="flex-1 overflow-hidden">
               <p className="text-xs font-medium text-slate-800 dark:text-white truncate">{userEmail}</p>
-              <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black">Trial Mode</p>
+              <div className="flex items-center gap-2">
+                <p className="text-[9px] text-slate-500 uppercase tracking-widest font-black">Trial Mode</p>
+                <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                <span className="text-[8px] font-black text-amber-500 uppercase">Beta</span>
+              </div>
             </div>
           </div>
           <button 
             onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+            className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors mb-4"
           >
             <LogOut className="w-4 h-4" />
             End Session
           </button>
+
+          {/* Small Creator Credit with Support Link */}
+          <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+            <p className="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1">
+              <UserIcon className="w-2 h-2" /> Creator
+            </p>
+            <div className="space-y-1 mb-3">
+              <p className="text-[10px] font-bold text-slate-700 dark:text-slate-300">Dewa Prabawa</p>
+              <p className="text-[9px] font-medium text-slate-500 flex items-center gap-1">
+                <MapPin className="w-2.5 h-2.5" /> Bali, Ubud, Gianyar
+              </p>
+            </div>
+            <a 
+              href="mailto:balipastika@gmail.com?subject=Support%20for%20IELTS%20Prep%20Pro" 
+              className="w-full py-2 bg-brand/10 hover:bg-brand/20 text-brand text-[9px] font-black rounded-lg flex items-center justify-center gap-1.5 transition-all active:scale-95"
+            >
+              <Heart className="w-2.5 h-2.5 fill-brand" /> SUPPORT CREATOR
+            </a>
+          </div>
         </div>
       </aside>
 
@@ -124,6 +164,7 @@ const Layout: React.FC<LayoutProps> = ({
           <div className="flex items-center gap-2">
             <GraduationCap className="w-6 h-6 text-brand" />
             <span className="font-bold text-lg dark:text-white">IELTS Prep</span>
+            <span className="ml-1 px-1 py-0.5 bg-amber-100 text-amber-600 text-[8px] font-black rounded uppercase border border-amber-200">BETA</span>
           </div>
           <div className="flex items-center gap-4">
             <button onClick={onToggleTheme} className="text-slate-600 dark:text-slate-400">
