@@ -1,0 +1,7 @@
+{
+  "name": "IELTS Prep Pro",
+  "description": "A comprehensive IELTS preparation application for Writing Task 2 and Speaking Part 1, providing AI-powered band scoring and detailed feedback using Gemini.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
