@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { BookOpen, Mic, LayoutDashboard, LogOut, GraduationCap, Moon, Sun, Palette } from 'lucide-react';
-import { AppTheme, AccentColor } from '../types';
+import { BookOpen, Mic, LayoutDashboard, LogOut, GraduationCap, Moon, Sun, Palette, Cloud, CloudOff } from 'lucide-react';
+import { AppTheme, AccentColor, AuthMode } from '../types';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,11 +13,12 @@ interface LayoutProps {
   accentColor: AccentColor;
   onToggleTheme: () => void;
   onChangeAccent: (color: AccentColor) => void;
+  authMode: AuthMode;
 }
 
 const Layout: React.FC<LayoutProps> = ({ 
   children, activeTab, onTabChange, onLogout, userEmail, 
-  theme, accentColor, onToggleTheme, onChangeAccent 
+  theme, accentColor, onToggleTheme, onChangeAccent, authMode
 }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -93,6 +94,22 @@ const Layout: React.FC<LayoutProps> = ({
               </div>
             </div>
           </div>
+
+          <div className="mt-4 px-4">
+             <div className={`p-4 rounded-2xl border ${authMode === 'trial' ? 'bg-amber-50 dark:bg-amber-900/10 border-amber-200 dark:border-amber-900/30' : 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-900/30'}`}>
+                <div className="flex items-center gap-2 mb-2">
+                   {authMode === 'supabase' ? <Cloud className="w-3 h-3 text-blue-500" /> : <CloudOff className="w-3 h-3 text-amber-500" />}
+                   <span className={`text-[10px] font-black uppercase tracking-widest ${authMode === 'trial' ? 'text-amber-600' : 'text-blue-600'}`}>
+                     {authMode === 'supabase' ? 'Cloud Synced' : 'Trial Mode'}
+                   </span>
+                </div>
+                <p className="text-[9px] font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+                  {authMode === 'supabase' 
+                    ? 'Your data is safe in the cloud and synced across devices.' 
+                    : 'Progress is local only. Sign up to sync your scores.'}
+                </p>
+             </div>
+          </div>
         </nav>
 
         <div className="p-4 border-t border-slate-100 dark:border-slate-800">
@@ -102,7 +119,7 @@ const Layout: React.FC<LayoutProps> = ({
             </div>
             <div className="flex-1 overflow-hidden">
               <p className="text-xs font-medium text-slate-800 dark:text-white truncate">{userEmail}</p>
-              <p className="text-[10px] text-slate-500">Free Tier</p>
+              <p className="text-[10px] text-slate-500 capitalize">{authMode} Mode</p>
             </div>
           </div>
           <button 

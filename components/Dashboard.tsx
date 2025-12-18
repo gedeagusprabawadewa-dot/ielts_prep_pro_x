@@ -7,7 +7,8 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { 
   TrendingUp, Award, Clock, FileText, Mic, ChevronRight, 
   Target, Calendar, Zap, Loader2, Sparkles, AlertCircle, 
-  CheckCircle2, ArrowUpRight, BrainCircuit, Flag
+  CheckCircle2, ArrowUpRight, BrainCircuit, Flag, Trophy,
+  Users, Cloud, ArrowRight
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
@@ -127,64 +128,97 @@ const Dashboard: React.FC = () => {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div className="lg:col-span-4 bg-slate-900 dark:bg-black rounded-[40px] p-10 text-white relative overflow-hidden shadow-2xl transition-all">
-          <div className="absolute top-0 right-0 p-8 opacity-10">
-            <BrainCircuit className="w-48 h-48" />
-          </div>
-          
-          <div className="relative z-10 flex flex-col h-full">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="bg-brand/20 p-2 rounded-xl">
-                <Sparkles className="w-5 h-5 text-brand" />
-              </div>
-              <h2 className="text-xl font-bold">Goal Forecaster</h2>
+      {user?.authMode === 'trial' && (
+        <div className="bg-blue-600 rounded-[32px] p-6 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-blue-200 dark:shadow-none animate-in slide-in-from-top-4 duration-500">
+          <div className="flex items-center gap-4">
+            <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md">
+               <Cloud className="w-6 h-6 text-white" />
             </div>
-            <p className="text-slate-400 text-sm mb-10 leading-relaxed">AI engine analyzing your lexical range and grammatical growth.</p>
+            <div>
+              <h4 className="text-lg font-black leading-tight">Sync your progress to the cloud</h4>
+              <p className="text-sm text-blue-100 font-medium opacity-80">Don't lose your Band {currentOverall} history. Create an account to study anywhere.</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => window.location.reload()} // Simple hack to return to login screen
+            className="px-8 py-3 bg-white text-blue-600 rounded-2xl font-black text-sm hover:bg-blue-50 transition-all flex items-center gap-2 whitespace-nowrap active:scale-95"
+          >
+            Create Free Account <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="lg:col-span-4 space-y-6 flex flex-col">
+          <div className="bg-slate-900 dark:bg-black rounded-[40px] p-10 text-white relative overflow-hidden shadow-2xl transition-all flex-1">
+            <div className="absolute top-0 right-0 p-8 opacity-10">
+              <BrainCircuit className="w-48 h-48" />
+            </div>
             
-            {!prediction ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 py-6">
-                <div className="w-24 h-24 rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center relative group">
-                  <div className="absolute inset-0 bg-brand/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <Zap className="w-10 h-10 text-brand relative z-10" />
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-brand/20 p-2 rounded-xl">
+                  <Sparkles className="w-5 h-5 text-brand" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold mb-2 text-white">Generate Prediction</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed px-6">
-                    {submissions.length < 3 
-                      ? "Keep practicing! 3+ tasks needed for a high-confidence forecast." 
-                      : "We'll calculate the hours of deliberate practice required to close the gap."}
-                  </p>
-                </div>
-                <button
-                  onClick={handlePredict}
-                  disabled={isPredicting || submissions.length === 0}
-                  className="w-full py-5 bg-brand hover:bg-brand-hover disabled:bg-slate-800 disabled:text-slate-600 rounded-3xl font-black transition-all flex items-center justify-center gap-2 shadow-2xl shadow-brand/20 group text-white"
-                >
-                  {isPredicting ? (
-                    <><Loader2 className="w-6 h-6 animate-spin" /> CALCULATING...</>
-                  ) : (
-                    <>RUN FORECAST <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /></>
-                  )}
-                </button>
+                <h2 className="text-xl font-bold">Goal Forecaster</h2>
               </div>
-            ) : (
-              <div className="flex-1 space-y-8 animate-in zoom-in-95 duration-500">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Effort Required</p>
-                    <p className="text-3xl font-black text-brand">{prediction.estimatedHours}h</p>
-                    <p className="text-[10px] text-slate-500 mt-1">{prediction.estimatedSessions} practice sessions</p>
+              <p className="text-slate-400 text-sm mb-10 leading-relaxed">AI engine analyzing your lexical range and grammatical growth.</p>
+              
+              {!prediction ? (
+                <div className="flex-1 flex flex-col items-center justify-center text-center space-y-8 py-6">
+                  <div className="w-24 h-24 rounded-[32px] bg-white/5 border border-white/10 flex items-center justify-center relative group">
+                    <div className="absolute inset-0 bg-brand/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <Zap className="w-10 h-10 text-brand relative z-10" />
                   </div>
-                  <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
-                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Target Date</p>
-                    <p className="text-3xl font-black text-emerald-400 truncate">{prediction.projectedDate}</p>
-                    <p className="text-[10px] text-slate-500 mt-1">{prediction.confidenceScore}% certainty</p>
+                  <div>
+                    <h3 className="text-lg font-bold mb-2 text-white">Generate Prediction</h3>
+                    <p className="text-xs text-slate-500 leading-relaxed px-6">
+                      {submissions.length < 3 
+                        ? "Keep practicing! 3+ tasks needed for a high-confidence forecast." 
+                        : "We'll calculate the hours of deliberate practice required to close the gap."}
+                    </p>
                   </div>
+                  <button
+                    onClick={handlePredict}
+                    disabled={isPredicting || submissions.length === 0}
+                    className="w-full py-5 bg-brand hover:bg-brand-hover disabled:bg-slate-800 disabled:text-slate-600 rounded-3xl font-black transition-all flex items-center justify-center gap-2 shadow-2xl shadow-brand/20 group text-white"
+                  >
+                    {isPredicting ? (
+                      <><Loader2 className="w-6 h-6 animate-spin" /> CALCULATING...</>
+                    ) : (
+                      <>RUN FORECAST <ArrowUpRight className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" /></>
+                    )}
+                  </button>
                 </div>
-                <button onClick={() => setPrediction(null)} className="w-full py-4 text-xs font-bold text-slate-500 hover:text-white transition-colors border-t border-white/5">RECALCULATE FORECAST</button>
-              </div>
-            )}
+              ) : (
+                <div className="flex-1 space-y-8 animate-in zoom-in-95 duration-500">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Effort Required</p>
+                      <p className="text-3xl font-black text-brand">{prediction.estimatedHours}h</p>
+                      <p className="text-[10px] text-slate-500 mt-1">{prediction.estimatedSessions} practice sessions</p>
+                    </div>
+                    <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
+                      <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Target Date</p>
+                      <p className="text-3xl font-black text-emerald-400 truncate">{prediction.projectedDate}</p>
+                      <p className="text-[10px] text-slate-500 mt-1">{prediction.confidenceScore}% certainty</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setPrediction(null)} className="w-full py-4 text-xs font-bold text-slate-500 hover:text-white transition-colors border-t border-white/5">RECALCULATE FORECAST</button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Wall of Fame Widget */}
+          <div className="bg-brand rounded-[32px] p-8 text-white shadow-xl shadow-brand/20 relative overflow-hidden group">
+             <Users className="absolute -bottom-4 -right-4 w-24 h-24 opacity-10 group-hover:scale-110 transition-transform" />
+             <div className="flex items-center gap-2 mb-4">
+                <Trophy className="w-4 h-4 text-amber-300" />
+                <h4 className="text-[10px] font-black uppercase tracking-widest">Wall of Fame</h4>
+             </div>
+             <p className="text-sm font-bold mb-4">"Achieved Band 8.0 for LPDP University of Edinburgh."</p>
+             <p className="text-[10px] opacity-70 font-medium">Recently by Aditya P.</p>
           </div>
         </div>
 
@@ -234,6 +268,23 @@ const Dashboard: React.FC = () => {
                 </div>
               )}
             </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+             <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
+                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase mb-2">Writing Average</p>
+                <div className="flex items-center justify-between">
+                   <p className="text-2xl font-black">{avgWriting}</p>
+                   <FileText className="w-5 h-5 text-blue-500 opacity-20" />
+                </div>
+             </div>
+             <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
+                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase mb-2">Speaking Average</p>
+                <div className="flex items-center justify-between">
+                   <p className="text-2xl font-black">{avgSpeaking}</p>
+                   <Mic className="w-5 h-5 text-purple-500 opacity-20" />
+                </div>
+             </div>
           </div>
         </div>
       </div>

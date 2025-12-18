@@ -8,6 +8,7 @@ export enum TaskType {
 
 export type AppTheme = 'light' | 'dark';
 export type AccentColor = 'blue' | 'emerald' | 'indigo' | 'rose';
+export type AuthMode = 'trial' | 'supabase';
 
 export interface ChartDataItem {
   name: string;
@@ -139,4 +140,5 @@ export interface User {
   targetBand?: number;
   theme?: AppTheme;
   accentColor?: AccentColor;
+  authMode: AuthMode;
 }
