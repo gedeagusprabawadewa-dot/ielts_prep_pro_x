@@ -4,8 +4,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>IELTS Prep Pro</title>
-    <!-- Official Tailwind Play CDN for JIT support in browser -->
+    <title>IELTS Prep Pro | AI-Powered Band Scoring & Feedback</title>
+    <meta name="description" content="Master IELTS Writing and Speaking with real-time AI feedback. Scholarship-standard evaluation using Gemini Pro for Task 1 and Task 2." />
+    <meta name="keywords" content="IELTS, IELTS Practice, AI Feedback, Writing Task 2, Speaking Part 1, Scholarship Prep, LPDP, AAS" />
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="IELTS Prep Pro" />
+    <meta property="og:description" content="The ultimate AI tutor for Indonesian scholars aiming for Band 8.0+." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&q=80&w=1200" />
+
+    <!-- Official Tailwind Play CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -28,38 +37,36 @@
       }
     </script>
     <style type="text/css">
-      /* Theme Architecture */
       :root {
-        --brand-primary: 16 185 129; /* Emerald 500 (Default is now Green) */
-        --brand-hover: 5 150 105;    /* Emerald 600 */
-        --brand-soft: 236 253 245;   /* Emerald 50 */
+        --brand-primary: 16 185 129;
+        --brand-hover: 5 150 105;
+        --brand-soft: 236 253 245;
       }
       
       .theme-blue {
-        --brand-primary: 37 99 235; /* Blue 600 */
-        --brand-hover: 29 78 216;   /* Blue 700 */
-        --brand-soft: 239 246 255;  /* Blue 50 */
+        --brand-primary: 37 99 235;
+        --brand-hover: 29 78 216;
+        --brand-soft: 239 246 255;
       }
       
       .theme-emerald {
-        --brand-primary: 16 185 129; /* Emerald 500 */
-        --brand-hover: 5 150 105;    /* Emerald 600 */
-        --brand-soft: 236 253 245;   /* Emerald 50 */
+        --brand-primary: 16 185 129;
+        --brand-hover: 5 150 105;
+        --brand-soft: 236 253 245;
       }
       
       .theme-indigo {
-        --brand-primary: 79 70 229;  /* Indigo 600 */
-        --brand-hover: 67 56 202;    /* Indigo 700 */
-        --brand-soft: 238 242 255;   /* Indigo 50 */
+        --brand-primary: 79 70 229;
+        --brand-hover: 67 56 202;
+        --brand-soft: 238 242 255;
       }
       
       .theme-rose {
-        --brand-primary: 225 29 72;   /* Rose 600 */
-        --brand-hover: 190 18 60;    /* Rose 700 */
-        --brand-soft: 255 241 242;   /* Rose 50 */
+        --brand-primary: 225 29 72;
+        --brand-hover: 190 18 60;
+        --brand-soft: 255 241 242;
       }
       
-      /* Dark mode variable overrides */
       .dark :root {
         --brand-soft: 6 78 59 / 0.1;
       }
@@ -73,7 +80,6 @@
         --brand-soft: 136 19 55 / 0.1;
       }
 
-      /* Global Transitions & Performance */
       body { 
         transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
                     color 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
@@ -81,7 +87,6 @@
         -moz-osx-font-smoothing: grayscale;
       }
 
-      /* Scrollbar Customization */
       ::-webkit-scrollbar {
         width: 8px;
       }
@@ -94,6 +99,15 @@
       }
       .dark ::-webkit-scrollbar-thumb {
         background: #1e293b;
+      }
+
+      /* Animation keyframes for production polish */
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+      }
+      .animate-float {
+        animation: float 5s ease-in-out infinite;
       }
     </style>
     <script type="importmap">
