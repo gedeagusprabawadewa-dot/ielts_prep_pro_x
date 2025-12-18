@@ -3,7 +3,8 @@ export enum TaskType {
   WRITING_TASK_1_ACADEMIC = 'WRITING_TASK_1_ACADEMIC',
   WRITING_TASK_1_GENERAL = 'WRITING_TASK_1_GENERAL',
   WRITING_TASK_2 = 'WRITING_TASK_2',
-  SPEAKING = 'SPEAKING'
+  SPEAKING = 'SPEAKING',
+  READING_ACADEMIC = 'READING_ACADEMIC'
 }
 
 export type AppTheme = 'light' | 'dark';
@@ -18,6 +19,41 @@ export interface ChartDataItem {
 export interface GroundingLink {
   title: string;
   uri: string;
+}
+
+export interface ReadingQuestion {
+  id: string;
+  type: 'mcq' | 'tfng' | 'gapfill';
+  question: string;
+  options?: string[]; // For MCQ
+  answer: string;
+  explanation?: string;
+}
+
+export interface ReadingTask {
+  id: string;
+  title: string;
+  passage: string;
+  questions: ReadingQuestion[];
+}
+
+export interface ReadingFeedback {
+  score: number;
+  total: number;
+  bandScore: number;
+  skillAnalysis: {
+    skimming: number;
+    scanning: number;
+    detailedUnderstanding: number;
+  };
+  answers: {
+    questionId: string;
+    isCorrect: boolean;
+    studentAnswer: string;
+    correctAnswer: string;
+    logic: string;
+  }[];
+  vocabulary: LanguagePoint[];
 }
 
 export interface WritingTask {
@@ -129,7 +165,7 @@ export interface Submission {
   taskId: string;
   content: string; 
   transcript?: string;
-  feedback: WritingFeedback | SpeakingFeedback;
+  feedback: WritingFeedback | SpeakingFeedback | ReadingFeedback;
   createdAt: string;
   wordCount?: number;
 }

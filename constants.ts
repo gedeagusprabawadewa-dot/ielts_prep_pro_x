@@ -1,5 +1,49 @@
 
-import { WritingTask, TaskType } from './types';
+import { WritingTask, TaskType, ReadingTask } from './types';
+
+export const READING_TASKS: ReadingTask[] = [
+  {
+    id: 'r1',
+    title: 'The Future of Urban Transportation',
+    passage: `In the first half of the 21st century, the concept of urban transportation underwent a radical transformation. As global populations shifted increasingly toward megacities, the traditional reliance on private internal combustion engine vehicles became unsustainable. This shift was driven not only by environmental concerns but also by the sheer physical limitations of urban space.
+
+One of the most significant developments was the rise of Autonomous Electric Vehicles (AEVs). Unlike traditional cars, AEVs operate as part of a synchronized network, drastically reducing traffic congestion by eliminating the 'human factor' of erratic braking and lane switching. Furthermore, the integration of Vertical Take-Off and Landing (VTOL) craft, once the stuff of science fiction, began to offer a viable 'third dimension' to city transit.
+
+However, critics argue that the technological focus on high-tech vehicles overlooks the fundamental importance of active transport, such as cycling and walking. Urban planners in cities like Copenhagen and Amsterdam have demonstrated that infrastructure dedicated to human-powered mobility can be just as effective at reducing carbon footprints as multi-billion dollar tech investments. The debate continues as to whether the cities of 2050 will be dominated by silent drones or bustling bicycle lanes.`,
+    questions: [
+      {
+        id: 'q1',
+        type: 'tfng',
+        question: 'Private petrol cars are considered a sustainable option for modern megacities.',
+        answer: 'False'
+      },
+      {
+        id: 'q2',
+        type: 'mcq',
+        question: 'What is cited as a primary benefit of AEVs in the text?',
+        options: [
+          'They are cheaper to manufacture than traditional cars.',
+          'They eliminate traffic jams caused by human driving behavior.',
+          'They allow people to travel longer distances in less time.',
+          'They are more aesthetically pleasing than older models.'
+        ],
+        answer: 'They eliminate traffic jams caused by human driving behavior.'
+      },
+      {
+        id: 'q3',
+        type: 'tfng',
+        question: 'VTOL craft have already become the most common form of urban transport.',
+        answer: 'Not Given'
+      },
+      {
+        id: 'q4',
+        type: 'gapfill',
+        question: 'Planners in Copenhagen emphasize ________ mobility over expensive technology.',
+        answer: 'human-powered'
+      }
+    ]
+  }
+];
 
 export const WRITING_TASKS: WritingTask[] = [
   {

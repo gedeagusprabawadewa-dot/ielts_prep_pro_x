@@ -4,11 +4,12 @@ import { getSubmissions, getSessionUser, updateUserData } from '../services/stor
 import { getTimelinePrediction } from '../services/geminiService';
 import { TaskType, PredictionResult } from '../types';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts';
+// Added BookOpen to the lucide-react imports
 import { 
   TrendingUp, Award, Clock, FileText, Mic, ChevronRight, 
   Target, Calendar, Zap, Loader2, Sparkles, AlertCircle, 
   CheckCircle2, ArrowUpRight, BrainCircuit, Flag, Trophy,
-  Users, Cloud, ArrowRight
+  Users, Cloud, ArrowRight, BookOpen
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
@@ -19,8 +20,9 @@ const Dashboard: React.FC = () => {
   const [isPredicting, setIsPredicting] = useState(false);
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
 
-  const writingSubmissions = submissions.filter(s => s.type !== TaskType.SPEAKING);
+  const writingSubmissions = submissions.filter(s => s.type !== TaskType.SPEAKING && s.type !== TaskType.READING_ACADEMIC);
   const speakingSubmissions = submissions.filter(s => s.type === TaskType.SPEAKING);
+  const readingSubmissions = submissions.filter(s => s.type === TaskType.READING_ACADEMIC);
 
   const avgWriting = writingSubmissions.length > 0 
     ? (writingSubmissions.reduce((acc, s) => acc + (s.feedback as any).overall, 0) / writingSubmissions.length).toFixed(1)
@@ -29,10 +31,15 @@ const Dashboard: React.FC = () => {
   const avgSpeaking = speakingSubmissions.length > 0
     ? (speakingSubmissions.reduce((acc, s) => acc + (s.feedback as any).overall, 0) / speakingSubmissions.length).toFixed(1)
     : '0.0';
+  
+  const avgReading = readingSubmissions.length > 0
+    ? (readingSubmissions.reduce((acc, s) => acc + (s.feedback as any).bandScore, 0) / readingSubmissions.length).toFixed(1)
+    : '0.0';
 
-  const currentOverall = (parseFloat(avgWriting) > 0 && parseFloat(avgSpeaking) > 0)
-    ? ((parseFloat(avgWriting) + parseFloat(avgSpeaking)) / 2).toFixed(1) 
-    : parseFloat(avgWriting) > 0 ? avgWriting : parseFloat(avgSpeaking) > 0 ? avgSpeaking : '0.0';
+  const currentOverall = (parseFloat(avgWriting) > 0 || parseFloat(avgSpeaking) > 0 || parseFloat(avgReading) > 0)
+    ? ((parseFloat(avgWriting) + parseFloat(avgSpeaking) + parseFloat(avgReading)) / 
+       ([parseFloat(avgWriting), parseFloat(avgSpeaking), parseFloat(avgReading)].filter(v => v > 0).length || 1)).toFixed(1) 
+    : '0.0';
 
   const progressPercentage = Math.min(100, Math.round((parseFloat(currentOverall) / targetBand) * 100));
 
@@ -42,7 +49,7 @@ const Dashboard: React.FC = () => {
       .reverse()
       .map(s => ({
         date: new Date(s.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-        score: (s.feedback as any).overall
+        score: (s.feedback as any).overall || (s.feedback as any).bandScore
       }));
   };
 
@@ -128,26 +135,6 @@ const Dashboard: React.FC = () => {
         </div>
       </header>
 
-      {user?.authMode === 'trial' && (
-        <div className="bg-blue-600 rounded-[32px] p-6 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-blue-200 dark:shadow-none animate-in slide-in-from-top-4 duration-500">
-          <div className="flex items-center gap-4">
-            <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-md">
-               <Cloud className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h4 className="text-lg font-black leading-tight">Sync your progress to the cloud</h4>
-              <p className="text-sm text-blue-100 font-medium opacity-80">Don't lose your Band {currentOverall} history. Create an account to study anywhere.</p>
-            </div>
-          </div>
-          <button 
-            onClick={() => window.location.reload()} // Simple hack to return to login screen
-            className="px-8 py-3 bg-white text-blue-600 rounded-2xl font-black text-sm hover:bg-blue-50 transition-all flex items-center gap-2 whitespace-nowrap active:scale-95"
-          >
-            Create Free Account <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-4 space-y-6 flex flex-col">
           <div className="bg-slate-900 dark:bg-black rounded-[40px] p-10 text-white relative overflow-hidden shadow-2xl transition-all flex-1">
@@ -210,7 +197,6 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Wall of Fame Widget */}
           <div className="bg-brand rounded-[32px] p-8 text-white shadow-xl shadow-brand/20 relative overflow-hidden group">
              <Users className="absolute -bottom-4 -right-4 w-24 h-24 opacity-10 group-hover:scale-110 transition-transform" />
              <div className="flex items-center gap-2 mb-4">
@@ -270,19 +256,26 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
-                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase mb-2">Writing Average</p>
+                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase mb-2">Writing Avg</p>
                 <div className="flex items-center justify-between">
                    <p className="text-2xl font-black">{avgWriting}</p>
                    <FileText className="w-5 h-5 text-blue-500 opacity-20" />
                 </div>
              </div>
              <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
-                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase mb-2">Speaking Average</p>
+                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase mb-2">Speaking Avg</p>
                 <div className="flex items-center justify-between">
                    <p className="text-2xl font-black">{avgSpeaking}</p>
                    <Mic className="w-5 h-5 text-purple-500 opacity-20" />
+                </div>
+             </div>
+             <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
+                <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase mb-2">Reading Avg</p>
+                <div className="flex items-center justify-between">
+                   <p className="text-2xl font-black">{avgReading}</p>
+                   <BookOpen className="w-5 h-5 text-emerald-500 opacity-20" />
                 </div>
              </div>
           </div>

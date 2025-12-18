@@ -1,6 +1,42 @@
 
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
-import { WritingFeedback, SpeakingFeedback, TaskType, Submission, PredictionResult, GroundingLink } from "../types";
+import { WritingFeedback, SpeakingFeedback, ReadingFeedback, TaskType, Submission, PredictionResult, GroundingLink } from "../types";
+
+export const evaluateReadingTest = async (passage: string, studentAnswers: any[], correctAnswers: any[]): Promise<ReadingFeedback> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
+    contents: `Analyze this IELTS Reading performance.
+    
+    Passage: """${passage}"""
+    Student Performance: ${JSON.stringify(studentAnswers)}
+    Correct Answers: ${JSON.stringify(correctAnswers)}
+    
+    Return JSON with this structure:
+    {
+      "score": number,
+      "total": number,
+      "bandScore": number,
+      "skillAnalysis": { "skimming": number, "scanning": number, "detailedUnderstanding": number },
+      "answers": [{
+        "questionId": string,
+        "isCorrect": boolean,
+        "studentAnswer": string,
+        "correctAnswer": string,
+        "logic": string
+      }],
+      "vocabulary": [{"word": string, "explanation": string}]
+    }
+    
+    INSTRUCTION: Logic should explain WHY the answer is correct based on the passage, citing specific phrases.`,
+    config: {
+      responseMimeType: "application/json",
+    },
+  });
+
+  return JSON.parse(response.text || '{}') as ReadingFeedback;
+};
 
 export const getLiveSuggestions = async (essay: string, taskQuestion: string): Promise<string[]> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
