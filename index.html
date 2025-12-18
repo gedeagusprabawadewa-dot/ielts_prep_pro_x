@@ -30,6 +30,12 @@
     <style type="text/css">
       /* Theme Architecture */
       :root {
+        --brand-primary: 16 185 129; /* Emerald 500 (Default is now Green) */
+        --brand-hover: 5 150 105;    /* Emerald 600 */
+        --brand-soft: 236 253 245;   /* Emerald 50 */
+      }
+      
+      .theme-blue {
         --brand-primary: 37 99 235; /* Blue 600 */
         --brand-hover: 29 78 216;   /* Blue 700 */
         --brand-soft: 239 246 255;  /* Blue 50 */
@@ -55,10 +61,10 @@
       
       /* Dark mode variable overrides */
       .dark :root {
-        --brand-soft: 30 58 138 / 0.1;
-      }
-      .dark .theme-emerald {
         --brand-soft: 6 78 59 / 0.1;
+      }
+      .dark .theme-blue {
+        --brand-soft: 30 58 138 / 0.1;
       }
       .dark .theme-indigo {
         --brand-soft: 49 46 129 / 0.1;

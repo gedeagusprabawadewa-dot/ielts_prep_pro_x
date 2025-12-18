@@ -63,7 +63,7 @@ const Testimonials = () => {
               </div>
             </div>
             <div className="mb-6">
-              <span className="inline-block px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-widest mb-2">
+              <span className="inline-block px-3 py-1 rounded-full bg-brand-soft text-brand text-[10px] font-black uppercase tracking-widest mb-2">
                 Result: {s.score}
               </span>
               <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
@@ -92,7 +92,7 @@ const App: React.FC = () => {
     const savedUser = getSessionUser();
     if (savedUser) {
       setUser(savedUser);
-      applyTheme(savedUser.theme || 'light', savedUser.accentColor || 'blue');
+      applyTheme(savedUser.theme || 'light', savedUser.accentColor || 'emerald');
     }
   }, []);
 
@@ -110,7 +110,7 @@ const App: React.FC = () => {
     updateUserData({ theme: newTheme }).then(updated => {
       if (updated) {
         setUser(updated);
-        applyTheme(newTheme, updated.accentColor || 'blue');
+        applyTheme(newTheme, updated.accentColor || 'emerald');
       }
     });
   };
@@ -136,7 +136,7 @@ const App: React.FC = () => {
     setTimeout(() => {
       const newUser = loginUserLocal(email);
       setUser(newUser);
-      applyTheme(newUser.theme || 'light', newUser.accentColor || 'blue');
+      applyTheme(newUser.theme || 'light', newUser.accentColor || 'emerald');
       setIsLoading(false);
     }, 800);
   };
@@ -145,7 +145,7 @@ const App: React.FC = () => {
     localStorage.removeItem('ielts_prep_user');
     localStorage.removeItem('ielts_prep_submissions');
     setUser(null);
-    window.document.documentElement.classList.remove('dark', 'theme-emerald', 'theme-indigo', 'theme-rose');
+    window.document.documentElement.classList.remove('dark', 'theme-blue', 'theme-emerald', 'theme-indigo', 'theme-rose');
   };
 
   if (!user) {
@@ -156,7 +156,7 @@ const App: React.FC = () => {
           <div className="flex flex-col lg:flex-row gap-12 mb-24 min-h-[70vh]">
             <div className="lg:w-1/2 flex flex-col justify-center">
               <div className="mb-8 flex items-center gap-3">
-                <div className="bg-blue-600 p-3 rounded-2xl shadow-xl shadow-blue-200">
+                <div className="bg-brand p-3 rounded-2xl shadow-xl shadow-brand/20">
                   <GraduationCap className="w-8 h-8 text-white" />
                 </div>
                 <span className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">IELTS Prep Pro</span>
@@ -164,7 +164,7 @@ const App: React.FC = () => {
               
               <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white leading-[1.1] mb-6">
                 Scholarship standard <br/>
-                <span className="text-blue-600">IELTS Training.</span>
+                <span className="text-brand">IELTS Training.</span>
               </h1>
               <p className="text-lg text-slate-500 dark:text-slate-400 mb-10 max-w-lg leading-relaxed">
                 Expert-level AI feedback for Writing, Speaking, and Reading. No password required—start your preparation journey instantly.
@@ -172,14 +172,14 @@ const App: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
                  <div className="p-5 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-200 dark:border-slate-800 shadow-sm flex items-start gap-4">
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-xl text-blue-600"><BookOpen className="w-5 h-5" /></div>
+                    <div className="bg-brand-soft p-2 rounded-xl text-brand"><BookOpen className="w-5 h-5" /></div>
                     <div>
                        <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider mb-1">Writing Labs</p>
                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Task 1 & 2 analysis with band-upgrade suggestions.</p>
                     </div>
                  </div>
                  <div className="p-5 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-200 dark:border-slate-800 shadow-sm flex items-start gap-4">
-                    <div className="bg-emerald-50 dark:bg-emerald-900/20 p-2 rounded-xl text-emerald-600"><Mic className="w-5 h-5" /></div>
+                    <div className="bg-brand-soft p-2 rounded-xl text-brand"><Mic className="w-5 h-5" /></div>
                     <div>
                        <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider mb-1">Speaking Studio</p>
                        <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Real-time fluency and pronunciation scoring.</p>
@@ -199,7 +199,7 @@ const App: React.FC = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@university.edu"
-                      className="w-full px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 transition-all bg-slate-50 dark:bg-slate-800 dark:text-white font-bold"
+                      className="w-full px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all bg-slate-50 dark:bg-slate-800 dark:text-white font-bold"
                     />
                   </div>
                   
@@ -213,7 +213,7 @@ const App: React.FC = () => {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black hover:bg-blue-700 active:scale-95 transition-all shadow-xl shadow-blue-200 flex items-center justify-center gap-3 group text-lg"
+                    className="w-full py-5 bg-brand text-white rounded-2xl font-black hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-brand/20 flex items-center justify-center gap-3 group text-lg"
                   >
                     {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : (
                       <>
@@ -230,13 +230,13 @@ const App: React.FC = () => {
             </div>
 
             {/* Visual Column */}
-            <div className="lg:w-1/2 bg-blue-600 rounded-[40px] relative overflow-hidden hidden lg:block shadow-2xl shadow-blue-900/40">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800"></div>
+            <div className="lg:w-1/2 bg-brand rounded-[40px] relative overflow-hidden hidden lg:block shadow-2xl shadow-brand/40">
+              <div className="absolute inset-0 bg-gradient-to-br from-brand to-brand-hover"></div>
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] aspect-square bg-white/5 rounded-full blur-3xl"></div>
               
               <div className="absolute top-[15%] right-[10%] p-6 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl animate-bounce duration-[4000ms]">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 font-bold">8.0</div>
+                  <div className="w-8 h-8 rounded-full bg-brand-soft flex items-center justify-center text-brand font-bold">8.0</div>
                   <p className="text-xs font-bold text-slate-800 dark:text-white">Writing Mastery</p>
                 </div>
               </div>
@@ -268,7 +268,7 @@ const App: React.FC = () => {
       onLogout={handleLogout}
       userEmail={user.email}
       theme={user.theme || 'light'}
-      accentColor={user.accentColor || 'blue'}
+      accentColor={user.accentColor || 'emerald'}
       onToggleTheme={handleToggleTheme}
       onChangeAccent={handleChangeAccent}
       authMode={user.authMode}

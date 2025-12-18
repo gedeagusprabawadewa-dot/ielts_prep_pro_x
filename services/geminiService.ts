@@ -91,6 +91,7 @@ export const evaluateWriting = async (essay: string, taskType: TaskType): Promis
         "taskIdentification": { "type": string, "trends": string },
         "sampleAnswer": string,
         "scoreExplanation": { "ta": string, "cc": string, "lr": string, "gra": string },
+        "keyVocabulary": [{"word": string, "explanation": string}],
         "improvementGuide": {
           "language": [{"word": string, "explanation": string}],
           "commonMistakes": [string],
@@ -101,6 +102,8 @@ export const evaluateWriting = async (essay: string, taskType: TaskType): Promis
         "practiceTask": string
       }
     }
+    
+    INSTRUCTION for keyVocabulary: Provide 5-8 high-level academic words or phrases useful for THIS SPECIFIC task type, with short usage explanations.
     
     Submission:
     """${essay}"""`,
@@ -156,7 +159,7 @@ export const getTaskResources = async (taskQuestion: string): Promise<GroundingL
   return links;
 };
 
-export const evaluateSpeaking = async (audioBase64: string): Promise<SpeakingFeedback> => {
+export const evaluateSpeaking = async (audioBase64: string, taskInfo: string, part: number): Promise<SpeakingFeedback> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash-native-audio-preview-09-2025',
@@ -170,8 +173,16 @@ export const evaluateSpeaking = async (audioBase64: string): Promise<SpeakingFee
             }
           },
           {
-            text: `You are an IELTS speaking examiner. Evaluate this speaking response for Part 1. 
-            Provide a full transcription and assess fluency, lexical resource, grammatical range, and pronunciation (estimate).
+            text: `You are an IELTS speaking examiner. Evaluate this speaking response for Part ${part}. 
+            Task Details: ${taskInfo}
+            
+            Evaluate based on:
+            1. Fluency and Coherence: (Part 2 requires long-run speech without excessive pausing)
+            2. Lexical Resource: (Ability to use a wide range of vocabulary precisely)
+            3. Grammatical Range and Accuracy: (Complex sentence structures)
+            4. Pronunciation: (Clarity and intonation)
+            
+            Provide a full transcription and assessment.
             Return JSON ONLY.`
           }
         ]

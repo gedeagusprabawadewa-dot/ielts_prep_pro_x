@@ -100,6 +100,7 @@ export interface Task1LearningModule {
     lr: string;
     gra: string;
   };
+  keyVocabulary: LanguagePoint[];
   improvementGuide: {
     language: LanguagePoint[];
     commonMistakes: string[];
@@ -148,6 +149,12 @@ export interface SpeakingFeedback {
   overall: number;
   feedback: string[];
   transcript: string;
+}
+
+export interface SpeakingCueCard {
+  id: string;
+  topic: string;
+  bulletPoints: string[];
 }
 
 export interface PredictionResult {

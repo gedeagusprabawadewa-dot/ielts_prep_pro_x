@@ -71,7 +71,7 @@ export const loginUserLocal = (email: string) => {
     email,
     targetBand: 7.0,
     theme: 'light',
-    accentColor: 'blue',
+    accentColor: 'emerald', // Default changed to emerald
     authMode: 'trial'
   };
   localStorage.setItem(USER_KEY, JSON.stringify(user));
@@ -84,7 +84,7 @@ export const loginUserCloud = (id: string, email: string, profile: Partial<User>
     email,
     targetBand: profile?.targetBand || 7.0,
     theme: profile?.theme || 'light',
-    accentColor: profile?.accentColor || 'blue',
+    accentColor: profile?.accentColor || 'emerald', // Default changed to emerald
     authMode: 'supabase'
   };
   localStorage.setItem(USER_KEY, JSON.stringify(user));

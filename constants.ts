@@ -1,5 +1,5 @@
 
-import { WritingTask, TaskType, ReadingTask } from './types';
+import { WritingTask, TaskType, ReadingTask, SpeakingCueCard } from './types';
 
 export const READING_TASKS: ReadingTask[] = [
   {
@@ -160,6 +160,49 @@ export const SPEAKING_QUESTIONS = [
   { id: 's2', question: 'Do you work or are you a student?' },
   { id: 's3', question: 'What do you like to do in your free time?' },
   { id: 's4', question: 'Do you prefer to travel alone or with friends?' }
+];
+
+export const SPEAKING_PART2_TASKS: SpeakingCueCard[] = [
+  {
+    id: 'p2-1',
+    topic: 'Describe an important journey that was delayed.',
+    bulletPoints: [
+      'when it was',
+      'where you were going',
+      'why it was delayed',
+      'and explain how you felt about the delay.'
+    ]
+  },
+  {
+    id: 'p2-2',
+    topic: 'Describe a person you know who is very beautiful or handsome.',
+    bulletPoints: [
+      'who this person is',
+      'how you know them',
+      'what they look like',
+      'and explain why you think they are beautiful or handsome.'
+    ]
+  },
+  {
+    id: 'p2-3',
+    topic: 'Describe a traditional object of your country.',
+    bulletPoints: [
+      'what it is',
+      'how it is made',
+      'what it is used for',
+      'and explain why it is important for your country.'
+    ]
+  },
+  {
+    id: 'p2-4',
+    topic: 'Describe a time when you shared something with others.',
+    bulletPoints: [
+      'what you shared',
+      'who you shared it with',
+      'why you shared it',
+      'and explain how you felt about sharing it.'
+    ]
+  }
 ];
 
 export const APP_THEME = {

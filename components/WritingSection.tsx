@@ -7,14 +7,14 @@ import { saveSubmission, saveDraft, getDraft, clearDraft } from '../services/sto
 import { 
   BarChart, Bar, LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
-// Fix: Added Trophy and ArrowRight to the imports from lucide-react
+// Added Copy and Languages to the imports from lucide-react
 import { 
   Send, CheckCircle2, ChevronRight, AlertCircle, Loader2, 
   BookOpen, Sparkles, GraduationCap, ArrowUpCircle, Info,
   LineChart as LineChartIcon, Mail, FileText, ClipboardCheck, Lightbulb,
   Table as TableIcon, ChartBar, Edit3, RotateCcw, PenTool, ExternalLink, Search, Globe, Cpu, Zap,
   Clock, Save, Trash2, Book, Target, Award, ShieldAlert, Check, TrendingUp, Presentation,
-  Trophy, ArrowRight
+  Trophy, ArrowRight, WifiOff, Settings, Copy, Languages
 } from 'lucide-react';
 
 const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> = ({ config }) => {
@@ -74,6 +74,7 @@ const WritingSection: React.FC = () => {
   const [isLiveLoading, setIsLiveLoading] = useState(false);
   const [showDraftBanner, setShowDraftBanner] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const wordCount = essay.trim() === '' ? 0 : essay.trim().split(/\s+/).length;
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -147,6 +148,13 @@ const WritingSection: React.FC = () => {
     }
   };
 
+  const handleCopyModelAnswer = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    });
+  };
+
   const handleSubmit = async () => {
     if (!selectedTask) return;
     const minWords = selectedTask.type === TaskType.WRITING_TASK_2 ? 50 : 30;
@@ -159,6 +167,11 @@ const WritingSection: React.FC = () => {
     setError(null);
     try {
       const result = await evaluateWriting(essay, selectedTask.type);
+      
+      if (!result || typeof result.overall === 'undefined') {
+        throw new Error('MALFORMED_RESPONSE');
+      }
+
       setFeedback(result);
       setActiveView('feedback');
       clearDraft(selectedTask.id);
@@ -171,9 +184,23 @@ const WritingSection: React.FC = () => {
         createdAt: new Date().toISOString(),
         wordCount
       });
-    } catch (err) {
-      setError('Evaluation failed. Please try again.');
-      console.error(err);
+    } catch (err: any) {
+      let message = 'Evaluation failed. Please try again.';
+      
+      // Heuristic for error categorization
+      const errStr = String(err).toLowerCase();
+      if (!navigator.onLine || errStr.includes('network') || errStr.includes('fetch')) {
+        message = 'Connection lost. Please check your internet and try again.';
+      } else if (errStr.includes('403') || errStr.includes('key')) {
+        message = 'API Authentication Error. This is likely a configuration issue with the server.';
+      } else if (errStr.includes('malformed') || errStr.includes('json')) {
+        message = 'The AI returned a response that couldn\'t be parsed. Please try a different approach or rewrite some parts.';
+      } else if (errStr.includes('429')) {
+        message = 'Rate limit exceeded. Please wait a moment before trying again.';
+      }
+
+      setError(message);
+      console.error('Submission error:', err);
     } finally {
       setIsGrading(false);
     }
@@ -358,7 +385,15 @@ const WritingSection: React.FC = () => {
                     <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-[40px] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm flex flex-col">
                       <div className="bg-slate-900 px-10 py-6 text-white font-black text-xs tracking-widest uppercase flex items-center justify-between">
                         <span>Expert Sample Answer (Band 8.5+)</span>
-                        <Award className="w-5 h-5 text-brand" />
+                        <div className="flex items-center gap-4">
+                          <button 
+                            onClick={() => handleCopyModelAnswer(module.sampleAnswer)}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded-xl transition-all border border-white/10 text-[10px] font-black"
+                          >
+                            {copySuccess ? <><Check className="w-3 h-3 text-emerald-400" /> COPIED</> : <><Copy className="w-3 h-3" /> COPY TEXT</>}
+                          </button>
+                          <Award className="w-5 h-5 text-brand" />
+                        </div>
                       </div>
                       <div className="p-10 bg-slate-50 dark:bg-slate-800/20 italic text-xl leading-relaxed text-slate-700 dark:text-slate-300 whitespace-pre-wrap flex-1">
                         {module.sampleAnswer}
@@ -380,6 +415,26 @@ const WritingSection: React.FC = () => {
                       ))}
                     </div>
                  </div>
+
+                 {/* Key Vocabulary Section */}
+                 {module.keyVocabulary && module.keyVocabulary.length > 0 && (
+                   <section className="space-y-6">
+                     <h3 className="text-xl font-black flex items-center gap-3">
+                       <div className="w-10 h-10 rounded-2xl bg-brand/10 text-brand flex items-center justify-center">
+                         <Languages className="w-5 h-5" />
+                       </div>
+                       Key Vocabulary Vault
+                     </h3>
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                       {module.keyVocabulary.map((item, i) => (
+                         <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm hover:border-brand transition-all flex flex-col h-full">
+                           <p className="text-base font-black text-brand mb-2">{item.word}</p>
+                           <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">{item.explanation}</p>
+                         </div>
+                       ))}
+                     </div>
+                   </section>
+                 )}
 
                  {/* Improvement Guide */}
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -422,7 +477,7 @@ const WritingSection: React.FC = () => {
                           <h4 className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-4">Tactical Tips</h4>
                           <ul className="space-y-3">
                             {module.improvementGuide.tips.map((tip, i) => (
-                              <li key={i} className="text-sm text-emerald-900 dark:text-emerald-400 font-bold flex gap-3">
+                              <li key={i} className="text-sm text-emerald-900 dark:text-amber-400 font-bold flex gap-3">
                                 <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" /> {tip}
                               </li>
                             ))}
@@ -642,7 +697,17 @@ const WritingSection: React.FC = () => {
             className="flex-1 p-10 text-xl leading-relaxed text-slate-700 dark:text-slate-300 bg-transparent focus:outline-none resize-none placeholder:text-slate-200 dark:placeholder:text-slate-700 min-h-[500px]"
           />
           <div className="p-8 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-4">
-            {error && <div className="text-red-500 text-sm font-black flex items-center gap-2"><AlertCircle className="w-4 h-4" /> {error}</div>}
+            {error && (
+              <div className="animate-in slide-in-from-bottom-2 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 p-4 rounded-2xl flex items-start gap-3">
+                <div className="mt-0.5">
+                  {error.includes('Connection') ? <WifiOff className="w-4 h-4 text-red-600" /> : <AlertCircle className="w-4 h-4 text-red-600" />}
+                </div>
+                <div>
+                   <p className="text-xs font-black text-red-600 uppercase tracking-tight mb-1">Evaluation Error</p>
+                   <p className="text-xs text-red-700 dark:text-red-400 font-medium leading-relaxed">{error}</p>
+                </div>
+              </div>
+            )}
             <div className="flex gap-4">
               <button 
                 onClick={handleSubmit} 
