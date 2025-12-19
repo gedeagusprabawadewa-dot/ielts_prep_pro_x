@@ -30,7 +30,7 @@ const Layout: React.FC<LayoutProps> = ({
   focusSettings, onUpdateFocus
 }) => {
   const menuItems = [
-    { id: 'foundations', label: 'IELTS Foundations', icon: GraduationCap },
+    { id: 'academy', label: 'Scholar Academy', icon: GraduationCap },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'writing', label: 'Writing Practice', icon: BookOpen },
     { id: 'reading', label: 'Reading Practice', icon: Library },
@@ -56,7 +56,7 @@ const Layout: React.FC<LayoutProps> = ({
             </div>
             <span className="font-bold text-xl text-slate-800 dark:text-white tracking-tight">IELTS Prep</span>
           </div>
-          <span className="px-1.5 py-0.5 bg-brand/10 text-brand text-[8px] font-black rounded uppercase tracking-tighter border border-brand/20">v1.1.0</span>
+          <span className="px-1.5 py-0.5 bg-brand/10 text-brand text-[8px] font-black rounded uppercase tracking-tighter border border-brand/20">v1.3.0</span>
         </div>
         
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">

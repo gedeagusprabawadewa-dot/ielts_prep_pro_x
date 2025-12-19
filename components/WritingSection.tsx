@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { WRITING_TASKS } from '../constants';
 import { WritingTask, WritingFeedback, TaskType, Highlight, LanguagePoint, GroundingLink, InlineHighlight } from '../types';
-import { evaluateWriting, getTaskResources, getLiveSuggestions } from '../services/geminiService';
+import { evaluateWriting, getTaskResources, getLiveSuggestions, checkVocabUsage } from '../services/geminiService';
 import { saveSubmission, saveDraft, getDraft, clearDraft } from '../services/storageService';
 import { 
   BarChart, Bar, LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, Legend
@@ -14,7 +14,7 @@ import {
   Table as TableIcon, ChartBar, Edit3, RotateCcw, PenTool, ExternalLink, Search, Globe, Cpu, Zap,
   Clock, Save, Trash2, Book, Target, Award, ShieldAlert, Check, TrendingUp, Presentation,
   Trophy, ArrowRight, WifiOff, Settings, Copy, Languages, PieChart as PieChartIcon, Map as MapIcon, RefreshCw, ChevronLeft,
-  X, History, SearchCheck, MessageSquareWarning
+  X, History, SearchCheck, MessageSquareWarning, MessageCircle, Pen
 } from 'lucide-react';
 
 const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> = ({ config }) => {
@@ -73,7 +73,6 @@ const EssayAnnotator: React.FC<EssayAnnotatorProps> = ({ text, highlights }) => 
     return <p className="text-xl leading-relaxed text-slate-700 dark:text-slate-300 font-serif whitespace-pre-wrap">{text}</p>;
   }
 
-  // Sort highlights by their position in text to avoid overlap issues during split
   const sortedHighlights = [...highlights].sort((a, b) => text.indexOf(a.phrase) - text.indexOf(b.phrase));
 
   const renderTextWithHighlights = () => {
@@ -84,12 +83,10 @@ const EssayAnnotator: React.FC<EssayAnnotatorProps> = ({ text, highlights }) => 
       const index = text.indexOf(highlight.phrase, lastIndex);
       if (index === -1) return;
 
-      // Add text before highlight
       if (index > lastIndex) {
         parts.push(text.substring(lastIndex, index));
       }
 
-      // Add highlighted span
       parts.push(
         <span
           key={`highlight-${idx}`}
@@ -112,7 +109,6 @@ const EssayAnnotator: React.FC<EssayAnnotatorProps> = ({ text, highlights }) => 
       lastIndex = index + highlight.phrase.length;
     });
 
-    // Add remaining text
     if (lastIndex < text.length) {
       parts.push(text.substring(lastIndex));
     }
@@ -156,6 +152,99 @@ const EssayAnnotator: React.FC<EssayAnnotatorProps> = ({ text, highlights }) => 
   );
 };
 
+const VocabularyPractice: React.FC<{ words: LanguagePoint[] }> = ({ words }) => {
+  const [practiceWords] = useState(() => words.slice(0, 4));
+  const [inputs, setInputs] = useState<Record<string, string>>({});
+  const [results, setResults] = useState<Record<string, { isCorrect: boolean; feedback: string; suggestion: string } | null>>({});
+  const [loading, setLoading] = useState<Record<string, boolean>>({});
+
+  const handleCheck = async (word: string) => {
+    const sentence = inputs[word];
+    if (!sentence || sentence.trim().length < 5) return;
+
+    setLoading(prev => ({ ...prev, [word]: true }));
+    try {
+      const result = await checkVocabUsage(word, sentence);
+      setResults(prev => ({ ...prev, [word]: result }));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(prev => ({ ...prev, [word]: false }));
+    }
+  };
+
+  return (
+    <section className="space-y-8 mt-12 animate-in fade-in duration-700">
+      <div className="flex items-end justify-between border-b-2 border-slate-100 dark:border-slate-800 pb-4">
+        <h3 className="text-2xl font-black flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-brand text-white flex items-center justify-center shadow-lg shadow-brand/20">
+            <Pen className="w-6 h-6" />
+          </div>
+          Vocabulary Practice
+        </h3>
+        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Application Challenge</p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6">
+        {practiceWords.map((item, i) => (
+          <div key={i} className="bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden transition-all hover:border-brand/50">
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="md:w-1/3">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-1.5 h-6 bg-brand rounded-full"></div>
+                  <p className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{item.word}</p>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed italic">
+                  Definition: {item.explanation}
+                </p>
+              </div>
+
+              <div className="md:w-2/3 space-y-4">
+                <textarea
+                  value={inputs[item.word] || ''}
+                  onChange={(e) => setInputs(prev => ({ ...prev, [item.word]: e.target.value }))}
+                  placeholder={`Write a sentence using "${item.word}" to describe Task 1 data...`}
+                  className="w-full h-24 bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand/20 resize-none transition-all"
+                  disabled={loading[item.word]}
+                />
+                
+                <div className="flex justify-end">
+                  <button 
+                    onClick={() => handleCheck(item.word)}
+                    disabled={loading[item.word] || !inputs[item.word]}
+                    className="px-6 py-2.5 bg-brand text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-hover transition-all flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {loading[item.word] ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <><CheckCircle2 className="w-3.5 h-3.5" /> CHECK SENTENCE</>}
+                  </button>
+                </div>
+
+                {results[item.word] && (
+                  <div className={`mt-4 p-6 rounded-2xl border animate-in slide-in-from-top-2 ${results[item.word]?.isCorrect ? 'bg-emerald-50 dark:bg-emerald-900/10 border-emerald-100' : 'bg-rose-50 dark:bg-rose-900/10 border-rose-100'}`}>
+                    <div className="flex items-start gap-4">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${results[item.word]?.isCorrect ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'}`}>
+                        {results[item.word]?.isCorrect ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-sm font-black text-slate-800 dark:text-slate-100">{results[item.word]?.feedback}</p>
+                        {results[item.word]?.suggestion && (
+                          <div className="pt-3 border-t border-black/5 dark:border-white/5">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Teacher's Suggestion:</p>
+                            <p className="text-sm font-medium text-slate-600 dark:text-slate-400 italic">"{results[item.word]?.suggestion}"</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
 const WritingSection: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<WritingTask | null>(null);
   const [essay, setEssay] = useState('');
@@ -180,8 +269,11 @@ const WritingSection: React.FC = () => {
     if (selectedTask) {
       handleFetchResources();
       const draft = getDraft(selectedTask.id);
-      if (draft && draft !== essay) setShowDraftBanner(true);
-      else setShowDraftBanner(false);
+      if (draft && draft.trim() !== '' && draft !== essay) {
+        setShowDraftBanner(true);
+      } else {
+        setShowDraftBanner(false);
+      }
     }
   }, [selectedTask]);
 
@@ -282,18 +374,14 @@ const WritingSection: React.FC = () => {
       });
     } catch (err: any) {
       let message = 'Evaluation failed. Please try again.';
-      
       const errStr = String(err).toLowerCase();
       if (!navigator.onLine || errStr.includes('network') || errStr.includes('fetch')) {
         message = 'Connection lost. Please check your internet and try again.';
       } else if (errStr.includes('403') || errStr.includes('key')) {
-        message = 'API Authentication Error. This is likely a configuration issue with the server.';
+        message = 'API Authentication Error.';
       } else if (errStr.includes('malformed') || errStr.includes('json')) {
-        message = 'The AI returned a response that couldn\'t be parsed. Please try a different approach or rewrite some parts.';
-      } else if (errStr.includes('429')) {
-        message = 'Rate limit exceeded. Please wait a moment before trying again.';
+        message = 'The AI returned a response that couldn\'t be parsed.';
       }
-
       setError(message);
       console.error('Submission error:', err);
     } finally {
@@ -340,7 +428,6 @@ const WritingSection: React.FC = () => {
 
         {activeView === 'feedback' ? (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-10">
-            {/* Primary Scores */}
             <div className="lg:col-span-8 space-y-8">
               <div className="bg-white dark:bg-slate-900 rounded-[40px] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                 <div className="bg-brand px-10 py-12 text-white flex justify-between items-center relative overflow-hidden">
@@ -436,7 +523,6 @@ const WritingSection: React.FC = () => {
               </div>
             </div>
 
-            {/* Sidebar Resources */}
             <div className="lg:col-span-4 space-y-6">
               <div className="bg-slate-900 dark:bg-black rounded-[40px] p-8 text-white shadow-xl sticky top-8 border border-white/5">
                 <div className="flex items-center gap-3 mb-8">
@@ -489,7 +575,6 @@ const WritingSection: React.FC = () => {
           <div className="space-y-12 pb-20 animate-in fade-in zoom-in-95 duration-700">
             {module ? (
                <div className="max-w-5xl mx-auto space-y-12">
-                 {/* Identification Header */}
                  <div className="bg-brand p-12 rounded-[40px] text-white shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-12 opacity-10">
                       <Presentation className="w-64 h-64" />
@@ -515,7 +600,6 @@ const WritingSection: React.FC = () => {
                     </div>
                  </div>
 
-                 {/* Sample Answer and Scores */}
                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 bg-white dark:bg-slate-900 rounded-[40px] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm flex flex-col">
                       <div className="bg-slate-900 px-10 py-6 text-white font-black text-xs tracking-widest uppercase flex items-center justify-between">
@@ -551,7 +635,6 @@ const WritingSection: React.FC = () => {
                     </div>
                  </div>
 
-                 {/* Key Vocabulary Section */}
                  {module.keyVocabulary && module.keyVocabulary.length > 0 && (
                    <section className="space-y-8">
                      <div className="flex items-end justify-between border-b-2 border-slate-100 dark:border-slate-800 pb-4">
@@ -578,7 +661,11 @@ const WritingSection: React.FC = () => {
                    </section>
                  )}
 
-                 {/* Improvement Guide */}
+                 {/* New Section: Vocabulary Practice */}
+                 {module.keyVocabulary && module.keyVocabulary.length > 0 && (
+                    <VocabularyPractice words={module.keyVocabulary} />
+                 )}
+
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <section className="space-y-6">
                       <h3 className="text-xl font-black flex items-center gap-3">
@@ -629,7 +716,6 @@ const WritingSection: React.FC = () => {
                     </section>
                  </div>
 
-                 {/* Band Upgrade Laboratory */}
                  <section className="space-y-6">
                     <h3 className="text-xl font-black flex items-center gap-3">
                       <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 flex items-center justify-center">
@@ -659,7 +745,6 @@ const WritingSection: React.FC = () => {
                     </div>
                  </section>
 
-                 {/* Examiner Corner */}
                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <div className="bg-slate-100 dark:bg-slate-800/50 p-10 rounded-[40px] border border-slate-200 dark:border-slate-800">
                        <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-6 flex items-center gap-2">
@@ -688,7 +773,7 @@ const WritingSection: React.FC = () => {
                     <BookOpen className="w-10 h-10 text-slate-300" />
                  </div>
                  <h3 className="text-2xl font-black text-slate-800 dark:text-white">Study Module Unavailable</h3>
-                 <p className="text-slate-500 dark:text-slate-400">Detailed modules are currently generated only for Writing Task 1 evaluations. Task 2 support is coming soon.</p>
+                 <p className="text-slate-500 dark:text-slate-400">Detailed modules are currently generated only for Writing Task 1 evaluations.</p>
                  <button onClick={() => setActiveView('feedback')} className="px-8 py-3 bg-brand text-white rounded-2xl font-black text-sm">Return to Feedback</button>
                </div>
             )}
@@ -698,7 +783,6 @@ const WritingSection: React.FC = () => {
     );
   }
 
-  // Handle Task list and Editor UI when no feedback is present
   return (
     <div className="max-w-6xl mx-auto py-10 animate-in fade-in duration-700">
       {!selectedTask ? (
@@ -743,7 +827,6 @@ const WritingSection: React.FC = () => {
         </>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[calc(100vh-200px)]">
-          {/* Question Side */}
           <div className="lg:col-span-5 flex flex-col gap-6 overflow-hidden">
             <div className="bg-white dark:bg-slate-900 p-10 rounded-[48px] border border-slate-200 dark:border-slate-800 shadow-sm overflow-y-auto flex-1">
               <button onClick={() => setSelectedTask(null)} className="text-slate-400 font-bold flex items-center gap-2 hover:text-brand transition-all mb-8 group">
@@ -772,17 +855,21 @@ const WritingSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Editor Side */}
           <div className="lg:col-span-7 flex flex-col gap-4 relative">
             {showDraftBanner && (
-              <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 p-4 rounded-3xl flex items-center justify-between animate-in slide-in-from-top-4">
-                <div className="flex items-center gap-3">
-                  <AlertCircle className="w-5 h-5 text-amber-600" />
-                  <p className="text-xs font-bold text-amber-800 dark:text-amber-400">Found an unsaved draft from your last session.</p>
+              <div className="bg-amber-50 dark:bg-amber-900/10 border border-amber-100 dark:border-amber-900/20 p-5 rounded-[32px] flex items-center justify-between animate-in slide-in-from-top-4 shadow-xl shadow-amber-200/20">
+                <div className="flex items-center gap-4">
+                  <div className="bg-amber-100 dark:bg-amber-800 p-2.5 rounded-2xl">
+                    <History className="w-5 h-5 text-amber-600 dark:text-amber-300" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-amber-900 dark:text-amber-100">Found an unsaved draft.</p>
+                    <p className="text-[10px] text-amber-700 dark:text-amber-400 font-bold uppercase">Resume where you left off?</p>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <button onClick={handleDiscardDraft} className="px-4 py-2 text-xs font-black text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-xl transition-all">Discard</button>
-                  <button onClick={handleLoadDraft} className="px-4 py-2 text-xs font-black bg-amber-600 text-white rounded-xl shadow-lg shadow-amber-200">Load Draft</button>
+                <div className="flex gap-3">
+                  <button onClick={handleDiscardDraft} className="px-5 py-2.5 text-xs font-black text-amber-600 hover:bg-amber-100 dark:hover:bg-amber-900/30 rounded-2xl transition-all">Discard</button>
+                  <button onClick={handleLoadDraft} className="px-5 py-2.5 text-xs font-black bg-amber-600 text-white rounded-2xl shadow-lg shadow-amber-200 transition-all hover:bg-amber-700">Load Draft</button>
                 </div>
               </div>
             )}
@@ -837,7 +924,7 @@ const WritingSection: React.FC = () => {
               <textarea
                 value={essay}
                 onChange={(e) => setEssay(e.target.value)}
-                placeholder="Start writing your essay response here... use formal academic language."
+                placeholder="Start writing your essay response here..."
                 className="flex-1 w-full p-10 resize-none focus:outline-none text-lg leading-relaxed text-slate-700 dark:text-slate-200 bg-transparent font-serif"
                 disabled={isGrading}
               />

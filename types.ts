@@ -4,12 +4,62 @@ export enum TaskType {
   WRITING_TASK_1_GENERAL = 'WRITING_TASK_1_GENERAL',
   WRITING_TASK_2 = 'WRITING_TASK_2',
   SPEAKING = 'SPEAKING',
-  READING_ACADEMIC = 'READING_ACADEMIC'
+  READING_ACADEMIC = 'READING_ACADEMIC',
+  ACADEMY_PLACEMENT = 'ACADEMY_PLACEMENT'
 }
 
+export type AcademyLevel = 'foundation' | 'bridge' | 'beginner' | 'unassigned';
 export type AppTheme = 'light' | 'dark';
 export type AccentColor = 'blue' | 'emerald' | 'indigo' | 'rose';
 export type AuthMode = 'trial' | 'supabase';
+
+export interface AcademyProgress {
+  level: AcademyLevel;
+  vocabCount: number;
+  completedLessons: string[];
+  learnedVocabIds: string[];
+  lastPlacementDate?: string;
+}
+
+export interface PlacementQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  answer: string;
+  category: 'grammar' | 'vocab' | 'logic';
+}
+
+export interface AcademyVocab {
+  id: string;
+  word: string;
+  meaningId: string; // Indonesian
+  example: string;
+  category: 'Daily Life' | 'Work' | 'Travel' | 'IELTS Common';
+  learned?: boolean;
+}
+
+export interface AcademyGrammarLesson {
+  id: string;
+  title: string;
+  explanationId: string; // Indonesian
+  wrong: string;
+  correct: string;
+  quiz: {
+    question: string;
+    options: string[];
+    answer: string;
+  };
+}
+
+export interface AcademyBridgeLesson {
+  id: string;
+  title: string;
+  type: 'listening' | 'speaking' | 'reading' | 'writing';
+  content: string;
+  indonesianTranslation?: string;
+  audioUrl?: string;
+  task: string;
+}
 
 export interface Lesson {
   id: string;
@@ -208,4 +258,5 @@ export interface User {
   theme?: AppTheme;
   accentColor?: AccentColor;
   authMode: AuthMode;
+  academyProgress?: AcademyProgress;
 }

@@ -2,15 +2,69 @@
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import { WritingFeedback, SpeakingFeedback, ReadingFeedback, TaskType, Submission, PredictionResult, GroundingLink } from "../types";
 
-/**
- * Custom Error for AI Parsing Issues
- */
-class AIResponseError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "AIResponseError";
+export const explainMistakeIndonesian = async (mistake: string, context: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Explain this English mistake to an Indonesian beginner (A1-A2). 
+      Mistake: "${mistake}" 
+      Context: "${context}"
+      
+      Response requirements:
+      - Use simple Bahasa Indonesia.
+      - Explain the "Why" (Grammar rule).
+      - Provide 1-2 more examples.
+      - Tone: Encouraging teacher.`,
+    });
+    return response.text || "Terjadi kesalahan. Coba lagi.";
+  } catch (e) {
+    return "Maaf, saya tidak bisa menjelaskan saat ini.";
   }
-}
+};
+
+export const checkPronunciation = async (audioBase64: string, targetText: string): Promise<{ score: 'Clear' | 'Needs practice'; feedback: string }> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-native-audio-preview-09-2025',
+      contents: [
+        { parts: [{ inlineData: { mimeType: 'audio/webm', data: audioBase64 } }, { text: `Target Text: "${targetText}". Is the pronunciation clear? Answer in JSON format: {"score": "Clear" | "Needs practice", "feedback": "Short feedback"}` }] }
+      ],
+      config: { responseMimeType: "application/json" }
+    });
+    return JSON.parse(response.text || '{}');
+  } catch (e) {
+    return { score: 'Needs practice', feedback: 'Could not analyze audio.' };
+  }
+};
+
+export const checkVocabUsage = async (word: string, sentence: string): Promise<{ isCorrect: boolean; feedback: string; suggestion: string }> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Evaluate this IELTS Task 1 practice sentence. 
+      Target Word: "${word}"
+      Student Sentence: "${sentence}"
+      
+      Requirements:
+      1. Is the word used correctly in an academic Task 1 (data description) context?
+      2. Is the grammar accurate?
+      
+      Return JSON:
+      {
+        "isCorrect": boolean,
+        "feedback": "Short, supportive teacher-like feedback (max 20 words)",
+        "suggestion": "An improved version of the sentence using the word naturally in a Task 1 context."
+      }`,
+      config: { responseMimeType: "application/json" }
+    });
+    return JSON.parse(response.text || '{}');
+  } catch (e) {
+    return { isCorrect: false, feedback: "I couldn't analyze this right now. Try a simpler sentence.", suggestion: "" };
+  }
+};
 
 export const getMindsetAdvice = async (userConcern: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -101,16 +155,10 @@ export const evaluateWriting = async (essay: string, taskType: TaskType): Promis
       Task Type: ${taskType}
       Essay: """${essay}"""
       
-      INSTRUCTION FOR TEACHER MODE:
-      You are an experienced IELTS teacher teaching a student who has never studied IELTS before.
-      Assume the student has zero exam knowledge and may feel confused or nervous.
-      They need explanation before practice.
-      
-      1. Explain First (No Jargon): What this task is, what the examiner wants, and what beginners often misunderstand.
-      2. Identify 3-5 specific grammatical or lexical errors.
-      3. Reassure the Learner: Normalize mistakes, emphasize learning over results.
-      
-      TONE RULES: Calm, supportive, teacher-like, British English. No pressure language.
+      CRITICAL EXAMINER INSTRUCTION:
+      1. TASK MISMATCH DETECTION: If the student writes an essay (Task 2 style) for a Task 1 prompt (data description/letter), you MUST award a score of no higher than 3.0 for Task Achievement. Explain clearly that they wrote an essay instead of describing data/writing a letter.
+      2. REALISTIC SCORING: Do not be overly generous. Follow the official IELTS Band Descriptors (9.0 scale) strictly.
+      3. TEACHER MODE: Explain concepts as if to a beginner, but do not hide the reality of the score.
       
       Return JSON:
       {

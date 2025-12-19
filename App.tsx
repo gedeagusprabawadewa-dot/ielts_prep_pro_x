@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
-import FoundationsSection from './components/FoundationsSection';
+import AcademySection from './components/AcademySection';
 import WritingSection from './components/WritingSection';
 import SpeakingSection from './components/SpeakingSection';
 import ReadingSection from './components/ReadingSection';
@@ -14,13 +14,13 @@ import {
   Mic, Moon, Sun, Quote, Trophy, MapPin, 
   Database, User as UserIcon, Loader2, AlertCircle, 
   CheckCircle2, BookOpen, Library, Mail, Heart, Info, Lightbulb,
-  ShieldCheck, Globe, Star, BadgeCheck
+  ShieldCheck, Globe, Star, BadgeCheck, Compass
 } from 'lucide-react';
 
 const TRACK_URLS = [
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3", // Lo-fi placeholder
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",  // Ambient placeholder
-  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"   // Coffee shop vibes placeholder
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3", 
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",  
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"   
 ];
 
 const Testimonials = () => {
@@ -92,12 +92,11 @@ const Testimonials = () => {
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState('foundations');
+  const [activeTab, setActiveTab] = useState('academy');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Focus Mode State
   const [focusSettings, setFocusSettings] = useState<FocusSettings>({
     isEnabled: false,
     volume: 0.3,
@@ -110,10 +109,13 @@ const App: React.FC = () => {
     if (savedUser) {
       setUser(savedUser);
       applyTheme(savedUser.theme || 'light', savedUser.accentColor || 'emerald');
+      // Default to Academy if placement isn't done
+      if (!savedUser.academyProgress?.level || savedUser.academyProgress.level === 'unassigned') {
+        setActiveTab('academy');
+      }
     }
   }, []);
 
-  // Focus Mode Audio Management
   useEffect(() => {
     if (!audioRef.current) {
       audioRef.current = new Audio(TRACK_URLS[focusSettings.trackIndex]);
@@ -123,19 +125,16 @@ const App: React.FC = () => {
     const audio = audioRef.current;
     audio.volume = focusSettings.volume;
 
-    // Smart Behavior: Auto-pause during speaking
     const shouldBePlaying = focusSettings.isEnabled && activeTab !== 'speaking';
 
     if (shouldBePlaying) {
       audio.src = TRACK_URLS[focusSettings.trackIndex];
-      audio.play().catch(e => console.warn("Audio play blocked by browser policy"));
+      audio.play().catch(e => console.warn("Audio play blocked"));
     } else {
       audio.pause();
     }
 
-    return () => {
-      audio.pause();
-    };
+    return () => { audio.pause(); };
   }, [focusSettings.isEnabled, focusSettings.trackIndex, focusSettings.volume, activeTab]);
 
   const applyTheme = (theme: AppTheme, accent: AccentColor) => {
@@ -199,14 +198,13 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 md:p-8 transition-colors duration-300">
         <div className="max-w-7xl mx-auto">
-          {/* Production Beta Notice */}
           <div className="mb-12 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl shadow-slate-200/50 dark:shadow-none animate-in fade-in slide-in-from-top-4">
              <div className="flex items-center gap-3">
                <div className="bg-brand-soft p-2 rounded-xl">
                  <BadgeCheck className="w-5 h-5 text-brand" />
                </div>
                <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
-                 Currently in <span className="text-brand">Public Beta v1.0.0</span>. Optimized for Indonesian Scholarship Candidates.
+                 Currently in <span className="text-brand">Public Beta v1.3.0</span>. Optimized for Indonesian Scholarship Candidates.
                </p>
              </div>
              <div className="flex items-center gap-6">
@@ -219,7 +217,6 @@ const App: React.FC = () => {
              </div>
           </div>
 
-          {/* Hero Section */}
           <div className="flex flex-col lg:flex-row gap-12 mb-24 min-h-[70vh]">
             <div className="lg:w-1/2 flex flex-col justify-center">
               <div className="mb-8 flex items-center gap-3">
@@ -242,10 +239,10 @@ const App: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
                  <div className="p-6 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm flex items-start gap-4 hover:border-brand transition-colors">
-                    <div className="bg-brand-soft p-2 rounded-xl text-brand"><BookOpen className="w-5 h-5" /></div>
+                    <div className="bg-brand-soft p-2 rounded-xl text-brand"><Compass className="w-5 h-5" /></div>
                     <div>
-                       <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider mb-1">Writing Mastery</p>
-                       <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Task 1 & 2 analysis based on Cambridge examiner guidelines.</p>
+                       <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider mb-1">Scholarship Academy</p>
+                       <p className="text-[10px] text-slate-500 leading-relaxed font-medium">Foundation, Bridge, and Beginner modules for all learners.</p>
                     </div>
                  </div>
                  <div className="p-6 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm flex items-start gap-4 hover:border-brand transition-colors">
@@ -273,14 +270,12 @@ const App: React.FC = () => {
                     placeholder="name@gmail.com"
                     className="w-full px-6 py-4 rounded-2xl border border-slate-200 dark:border-slate-800 focus:outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all bg-slate-50 dark:bg-slate-800 dark:text-white font-bold"
                   />
-                  
                   {authError && (
                     <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400 text-[10px] font-bold border border-red-100">
                       <AlertCircle className="w-4 h-4 flex-shrink-0" />
                       {authError}
                     </div>
                   )}
-
                   <button
                     type="submit"
                     disabled={isLoading}
@@ -293,16 +288,10 @@ const App: React.FC = () => {
                       </>
                     )}
                   </button>
-                  <div className="flex items-center justify-center gap-4 mt-6">
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">No Card Required</p>
-                    <div className="w-1 h-1 rounded-full bg-slate-200"></div>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Instant Results</p>
-                  </div>
                 </form>
               </div>
             </div>
 
-            {/* Visual Column */}
             <div className="lg:w-1/2 bg-brand rounded-[40px] relative overflow-hidden hidden lg:block shadow-2xl shadow-brand/40">
               <div className="absolute inset-0 bg-gradient-to-br from-brand to-brand-hover opacity-90"></div>
               <img 
@@ -322,24 +311,11 @@ const App: React.FC = () => {
                    {[...Array(5)].map((_, i) => <Star key={i} className="w-3 h-3 fill-amber-300 text-amber-300" />)}
                  </div>
               </div>
-
-              <div className="absolute bottom-[10%] right-[10%] p-10 bg-slate-900 rounded-[40px] shadow-2xl max-w-sm border border-white/5">
-                 <div className="flex items-center gap-3 mb-4">
-                   <div className="bg-brand p-2 rounded-xl"><Trophy className="w-5 h-5 text-white" /></div>
-                   <span className="text-[10px] font-black uppercase text-slate-400">Winning Strategy</span>
-                 </div>
-                 <p className="text-white text-lg font-bold leading-tight mb-4 italic">"This platform is the difference between a 6.5 and a scholarship-winning 8.0."</p>
-                 <div className="flex items-center gap-3">
-                   <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700"></div>
-                   <p className="text-xs font-bold text-slate-300">LPDP Scholar, 2024</p>
-                 </div>
-              </div>
             </div>
           </div>
 
           <Testimonials />
 
-          {/* Landing Footer Creator Info */}
           <footer className="mt-32 pt-16 border-t border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-start justify-between gap-16 pb-20">
             <div className="space-y-6">
               <div className="flex items-center gap-3">
@@ -354,51 +330,12 @@ const App: React.FC = () => {
               <p className="text-sm text-slate-500 max-w-sm leading-relaxed">
                 Empowering Indonesian students with expert AI-driven evaluation. Built for the scholarship dreamers of LPDP, AAS, and BPI.
               </p>
-              <div className="flex items-center gap-4 text-[10px] font-bold text-slate-400">
-                <span>Terms of Service</span>
-                <span>Privacy Policy</span>
-                <span>© 2025 IELTS Prep Pro</span>
-              </div>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-12 flex-1">
-              <div className="flex flex-col items-start">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Creator</p>
-                <div className="space-y-3">
-                   <p className="text-sm font-bold text-slate-700 dark:text-slate-300 flex items-center gap-2">
-                     Dewa Prabawa
-                   </p>
-                   <p className="text-xs text-slate-500 flex items-center gap-2">
-                     <MapPin className="w-3.5 h-3.5" /> Bali, Ubud
-                   </p>
-                </div>
-              </div>
-              
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-12 flex-1">
               <div className="flex flex-col items-start">
                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Contact</p>
-                <a href="mailto:balipastika@gmail.com" className="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-brand transition-colors flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-brand" /> Email Support
-                </a>
-              </div>
-
-              <div className="flex flex-col items-start">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Contribute</p>
-                <a 
-                  href="mailto:balipastika@gmail.com?subject=IELTS%20Prep%20Pro%3A%20Feature%20Suggestion" 
-                  className="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-brand transition-colors flex items-center gap-2"
-                >
-                  <Lightbulb className="w-4 h-4 text-amber-500" /> Feedback Lab
-                </a>
-              </div>
-
-              <div className="flex flex-col items-start">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Support Work</p>
-                <a 
-                  href="mailto:balipastika@gmail.com?subject=Supporting%20IELTS%20Prep%20Pro" 
-                  className="px-6 py-3 bg-brand/10 hover:bg-brand text-brand hover:text-white rounded-2xl text-[10px] font-black transition-all flex items-center gap-2 border border-brand/20 shadow-lg shadow-brand/5"
-                >
-                  <Heart className="w-4 h-4 fill-current" /> DONATE
-                </a>
+                <a href="mailto:balipastika@gmail.com" className="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-brand transition-colors">Email Support</a>
               </div>
             </div>
           </footer>
@@ -421,7 +358,8 @@ const App: React.FC = () => {
       focusSettings={focusSettings}
       onUpdateFocus={handleUpdateFocus}
     >
-      {activeTab === 'foundations' && <FoundationsSection />}
+      {activeTab === 'academy' && <AcademySection />}
+      {activeTab === 'foundations' && <AcademySection />}
       {activeTab === 'dashboard' && <Dashboard />}
       {activeTab === 'writing' && <WritingSection />}
       {activeTab === 'reading' && <ReadingSection />}

@@ -1,5 +1,82 @@
 
-import { WritingTask, TaskType, ReadingTask, SpeakingCueCard, Lesson } from './types';
+import { WritingTask, TaskType, ReadingTask, SpeakingCueCard, Lesson, PlacementQuestion, AcademyVocab, AcademyGrammarLesson, AcademyBridgeLesson } from './types';
+
+export const PLACEMENT_QUESTIONS: PlacementQuestion[] = [
+  { id: 'p1', question: "I ______ to the library yesterday.", options: ["go", "goes", "went", "going"], answer: "went", category: "grammar" },
+  { id: 'p2', question: "Which word is a synonym for 'Huge'?", options: ["Tiny", "Massive", "Slow", "Bright"], answer: "Massive", category: "vocab" },
+  { id: 'p3', question: "She ______ coffee every morning.", options: ["drink", "drinks", "drinking", "drank"], answer: "drinks", category: "grammar" },
+  { id: 'p4', question: "To 'postpone' an event means to ______.", options: ["Cancel it", "Start it early", "Move it to a later time", "Join it"], answer: "Move it to a later time", category: "vocab" },
+  { id: 'p5', question: "If it rains, I ______ at home.", options: ["stay", "will stay", "stayed", "stays"], answer: "will stay", category: "grammar" }
+];
+
+export const ACADEMY_VOCAB: AcademyVocab[] = [
+  { id: 'v1', word: 'Requirement', meaningId: 'Persyaratan', example: 'A valid passport is a requirement for travel.', category: 'IELTS Common' },
+  { id: 'v2', word: 'Sustainable', meaningId: 'Berkelanjutan', example: 'We must find sustainable energy sources.', category: 'Travel' },
+  { id: 'v3', word: 'Commute', meaningId: 'Perjalanan ke tempat kerja', example: 'My daily commute takes 45 minutes.', category: 'Daily Life' },
+  { id: 'v4', word: 'Significant', meaningId: 'Signifikan / Penting', example: 'There has been a significant change in the weather.', category: 'Work' },
+  { id: 'v5', word: 'Beneficial', meaningId: 'Bermanfaat', example: 'Exercise is beneficial for your health.', category: 'Daily Life' },
+  { id: 'v6', word: 'Departure', meaningId: 'Keberangkatan', example: 'Please check the departure board for your gate.', category: 'Travel' },
+  { id: 'v7', word: 'Colleague', meaningId: 'Rekan kerja', example: 'I am going to lunch with my colleague.', category: 'Work' },
+  { id: 'v8', word: 'Estimate', meaningId: 'Memperkirakan', example: 'Can you estimate the cost of the repair?', category: 'IELTS Common' }
+];
+
+export const ACADEMY_GRAMMAR: AcademyGrammarLesson[] = [
+  {
+    id: 'g1',
+    title: 'Subject-Verb Agreement',
+    explanationId: 'Subjek tunggal membutuhkan kata kerja tunggal (biasanya ditambah s/es).',
+    wrong: 'He play football every Sunday.',
+    correct: 'He plays football every Sunday.',
+    quiz: {
+      question: 'Which is correct?',
+      options: ['The cat sleep on the mat.', 'The cat sleeps on the mat.'],
+      answer: 'The cat sleeps on the mat.'
+    }
+  },
+  {
+    id: 'g2',
+    title: 'Present Continuous',
+    explanationId: 'Gunakan am/is/are + verb-ing untuk kejadian yang sedang berlangsung sekarang.',
+    wrong: 'I reading a book now.',
+    correct: 'I am reading a book now.',
+    quiz: {
+      question: 'Complete the sentence: They ______ to the radio.',
+      options: ['is listening', 'are listening', 'listening'],
+      answer: 'are listening'
+    }
+  },
+  {
+    id: 'g3',
+    title: 'Past Simple (Regular)',
+    explanationId: 'Gunakan bentuk lampau (-ed) untuk kejadian yang sudah selesai.',
+    wrong: 'I work yesterday until 9 PM.',
+    correct: 'I worked yesterday until 9 PM.',
+    quiz: {
+      question: 'Past tense of "Talk"?',
+      options: ['Talked', 'Talking', 'Talks'],
+      answer: 'Talked'
+    }
+  }
+];
+
+export const ACADEMY_BRIDGE: AcademyBridgeLesson[] = [
+  {
+    id: 'b1',
+    title: 'Daily Commute Listening',
+    type: 'listening',
+    content: 'Hi! My name is Sarah. I live in a big city. Every morning, I take the train to work. It takes about 30 minutes. I usually read a book or listen to music during my commute.',
+    indonesianTranslation: 'Hai! Nama saya Sarah. Saya tinggal di kota besar. Setiap pagi, saya naik kereta ke tempat kerja. Membutuhkan waktu sekitar 30 menit. Saya biasanya membaca buku atau mendengarkan musik selama perjalanan.',
+    task: 'Listen and identify: How does Sarah go to work?'
+  },
+  {
+    id: 'b2',
+    title: 'Describing Your Hometown',
+    type: 'speaking',
+    content: 'Describe where you live. Mention the name of the city, what it is famous for, and if you like living there.',
+    indonesianTranslation: 'Ceritakan tempat tinggalmu. Sebutkan nama kotanya, apa yang terkenal di sana, dan apakah kamu suka tinggal di sana.',
+    task: 'Record yourself speaking for 45 seconds.'
+  }
+];
 
 export const FOUNDATION_LESSONS: Lesson[] = [
   {
@@ -82,103 +159,6 @@ However, critics argue that the technological focus on high-tech vehicles overlo
         answer: 'human-powered'
       }
     ]
-  },
-  {
-    id: 'r2',
-    title: 'Nutmeg – a valuable spice',
-    passage: `The nutmeg tree, Myristica fragrans, is a large evergreen tree native to Southeast Asia. Until the late 18th century, it only grew in one place in the world: a small group of islands in the Banda Sea, part of the Moluccas – or Spice Islands – in northeastern Indonesia. The tree is thickly branched with dense foliage of tough, dark green oval leaves, and produces small, yellow, bell-shaped flowers and pale yellow pear-shaped fruits. The fruit is encased in a flesh husk. When the fruit is ripe, this husk splits into two halves along a ridge running the length of the fruit. Inside is a purple-brown shiny seed, 2-3 cm long by about 2 cm across, surrounded by a lacy red or crimson covering called an ‘aril’. These are the sources of the two spices nutmeg and mace, the former being produced from the dried seed and the latter from the aril.
-
-Nutmeg was a highly prized and costly ingredient in European cuisine in the Middle Ages, and was used as a flavouring, medicinal, and preservative agent. Throughout this period, the Arabs were the exclusive importers of the spice to Europe. They sold nutmeg for high prices to merchants based in Venice, but they never revealed the exact location of the source of this extremely valuable commodity. The Arab-Venetian dominance of the trade finally ended in 1512, when the Portuguese reached the Banda Islands and began exploiting its precious resources.
-
-Always in danger of competition from neighbouring Spain, the Portuguese began subcontracting their spice distribution to Dutch traders. Profits began to flow into the Netherlands, and the Dutch commercial fleet swiftly grew into one of the largest in the world. The Dutch quietly gained control of most of the shipping and trading of spices in Northern Europe. Then, in 1580, Portugal fell under Spanish rule, and by the end of the 16th century the Dutch found themselves locked out of the market. As prices for pepper, nutmeg, and other spices soared across Europe, they decided to fight back.
-
-In 1602, Dutch merchants founded the VOC, a trading corporation better known as the Dutch East India Company. By 1617, the VOC was the richest commercial operation in the world. The company had 50,000 employees worldwide, with a private army of 30,000 men and a fleet of 200 ships. At the same time, thousands of people across Europe were dying of the plague, a highly contagious and deadly disease. Doctors were desperate for a way to stop the spread of this disease, and they decided nutmeg held the cure. Everybody wanted nutmeg, and many were willing to spare no expense to have it. Nutmeg bought for a few pennies in Indonesia could be sold for 68,000 times its original cost on the streets of London. The only problem was the short supply. And that’s where the Dutch found their opportunity.
-
-The Banda Islands were ruled by local sultans who insisted on maintaining a neutral trading policy towards foreign powers. This allowed them to avoid the presence of Portuguese or Spanish troops on their soil, but it also left them unprotected from other invaders. In 1621, the Dutch arrived and took over. Once securely in control of the Bandas, the Dutch went to work protecting their new investment. They concentrated all nutmeg production into a few easily guarded areas, uprooting and destroying any trees outside the plantation zones. Anyone caught growing a nutmeg seedling or carrying seeds without the proper authority was severely punished. In addition, all exported nutmeg was covered with lime to make sure there was no chance a fertile seed which could be grown elsewhere would leave the islands.
-
-There was only one obstacle to Dutch domination. One of the Banda Islands, a sliver of land called Run, only 3 km long by less than 1 km wide, was under the control of the British. After decades of fighting for control of this tiny island, the Dutch and British arrived at a compromise settlement, the Treaty of Breda, in 1667. Intent on securing their hold over every nutmeg-producing island, the Dutch offered a trade: if the British would give them the island of Run, they would in turn give Britain a distant and much less valuable island in North America. The British agreed. That other island was Manhattan, which is how New Amsterdam became New York. The Dutch now had a monopoly over the nutmeg trade which would last for another century.
-
-Then, in 1770, a Frenchman named Pierre Poivre successfully smuggled nutmeg plants to safety in Mauritius, an island off the coast of Africa. Some of these were later exported to the Caribbean where they thrived, especially on the island of Grenada. Next, in 1778, a volcanic eruption in the Banda region caused a tsunami that wiped out half the nutmeg groves. Finally, in 1809, the British returned to Indonesia and seized the Banda Islands by force. They returned the islands to the Dutch in 1817, but not before transplanting hundreds of nutmeg seedlings to plantations in several locations across southern Asia. The Dutch nutmeg monopoly was over.`,
-    questions: [
-      {
-        id: 'r2-q1',
-        type: 'gapfill',
-        question: 'The leaves of the nutmeg tree are ________ in shape.',
-        answer: 'oval'
-      },
-      {
-        id: 'r2-q2',
-        type: 'gapfill',
-        question: 'The ________ surrounds the fruit and breaks open when the fruit is ripe.',
-        answer: 'husk'
-      },
-      {
-        id: 'r2-q3',
-        type: 'gapfill',
-        question: 'The ________ is used to produce the spice nutmeg.',
-        answer: 'seed'
-      },
-      {
-        id: 'r2-q4',
-        type: 'gapfill',
-        question: 'The covering known as the aril is used to produce ________.',
-        answer: 'mace'
-      },
-      {
-        id: 'r2-q5',
-        type: 'tfng',
-        question: 'In the Middle Ages, most Europeans knew where nutmeg was grown.',
-        answer: 'False'
-      },
-      {
-        id: 'r2-q6',
-        type: 'tfng',
-        question: 'The VOC was the world’s first major trading company.',
-        answer: 'Not Given'
-      },
-      {
-        id: 'r2-q7',
-        type: 'tfng',
-        question: 'Following the Treaty of Breda, the Dutch had control of all the islands where nutmeg grew.',
-        answer: 'True'
-      },
-      {
-        id: 'r2-q8',
-        type: 'gapfill',
-        question: 'In the Middle Ages, nutmeg was brought to Europe by the ________.',
-        answer: 'Arabs'
-      },
-      {
-        id: 'r2-q9',
-        type: 'gapfill',
-        question: 'In the 17th century, nutmeg was believed to be effective against the disease known as the ________.',
-        answer: 'plague'
-      },
-      {
-        id: 'r2-q10',
-        type: 'gapfill',
-        question: 'The Dutch put ________ on nutmeg to avoid it being cultivated outside the islands.',
-        answer: 'lime'
-      },
-      {
-        id: 'r2-q11',
-        type: 'gapfill',
-        question: 'The Dutch finally obtained the island of ________ from the British.',
-        answer: 'Run'
-      },
-      {
-        id: 'r2-q12',
-        type: 'gapfill',
-        question: 'In 1770, nutmeg plants were secretly taken to ________.',
-        answer: 'Mauritius'
-      },
-      {
-        id: 'r2-q13',
-        type: 'gapfill',
-        question: 'In 1778, half the Banda Islands\' nutmeg plantations were destroyed by a ________.',
-        answer: 'tsunami'
-      }
-    ]
   }
 ];
 
@@ -203,92 +183,10 @@ export const WRITING_TASKS: WritingTask[] = [
     }
   },
   {
-    id: 'w1-t1-line',
-    topic: 'Technology',
-    type: TaskType.WRITING_TASK_1_ACADEMIC,
-    question: 'The line graph shows the percentage of households with internet access in three different countries between 2005 and 2015. Summarize the information by selecting and reporting the main features.',
-    chartConfig: {
-      type: 'line',
-      xAxisKey: 'name',
-      dataKeys: ['Country A', 'Country B', 'Country C'],
-      data: [
-        { name: '2005', 'Country A': 15, 'Country B': 30, 'Country C': 5 },
-        { name: '2007', 'Country A': 25, 'Country B': 35, 'Country C': 12 },
-        { name: '2009', 'Country A': 45, 'Country B': 38, 'Country C': 25 },
-        { name: '2011', 'Country A': 60, 'Country B': 42, 'Country C': 38 },
-        { name: '2013', 'Country A': 75, 'Country B': 55, 'Country C': 50 },
-        { name: '2015', 'Country A': 85, 'Country B': 70, 'Country C': 65 },
-      ]
-    }
-  },
-  {
-    id: 'w1-t1-g',
-    topic: 'Employment',
-    type: TaskType.WRITING_TASK_1_GENERAL,
-    question: 'You have recently started a new job. Write a letter to a friend and tell them about it. In your letter: explain what the job is, describe your new colleagues, and invite your friend to visit you.'
-  },
-  {
     id: 'w1',
     topic: 'Education',
     type: TaskType.WRITING_TASK_2,
-    question: 'Some people believe that students should be allowed to evaluate their teachers. Others argue that this would lead to a lack of discipline in the classroom. Discuss both views and give your own opinion.',
-    modelAnswer: {
-      text: "In the modern educational landscape, the question of whether students should be granted the authority to appraise their instructors remains a subject of intense debate. While critics argue that such a measure might undermine classroom decorum, I believe that a constructive feedback loop is essential for academic excellence, provided it is implemented with professional safeguards.\n\nOpponents of student evaluations primarily cite the potential erosion of authority. They contend that if teachers feel their job security is tethered to student satisfaction, they may resort to 'grade inflation' or leniency in discipline to curry favor. For instance, a teacher might hesitate to enforce strict deadlines or behavioral standards for fear of receiving negative reviews. Consequently, the classroom environment could transform from a place of rigorous learning into a popularity contest, ultimately compromising the educational standard.\n\nOn the other hand, the benefits of incorporating student perspectives are manifold. Learners are the primary consumers of education, and their insights into teaching methodology and clarity are invaluable. By providing regular feedback, students can highlight areas where instructional techniques may be outdated or ineffective. Furthermore, being heard fosters a sense of agency among students, encouraging them to take greater responsibility for their learning journey. This collaborative approach often leads to higher engagement levels and a more dynamic classroom atmosphere.\n\nIn my opinion, the merits of student appraisals far outweigh the risks of disciplinary breakdown. The key lies in the design of the evaluation system; it should focus on pedagogical effectiveness rather than personal likability. When combined with peer reviews and management observations, student feedback forms a balanced and holistic view of a teacher's performance.\n\nIn conclusion, while concerns regarding discipline are not entirely unfounded, they can be mitigated through robust system design. Allowing students a voice in their education not only enhances teaching quality but also prepares them for a democratic society where constructive criticism is a cornerstone of progress.",
-      overallBand: 9,
-      explanation: "This response achieves a Band 9 because it provides a highly sophisticated argument that fully addresses all parts of the prompt with nuanced development and exceptional linguistic control.",
-      criteria: {
-        taskResponse: "The essay provides a comprehensive discussion of both sides and a clear, consistent opinion. Each point is extended with relevant logical examples.",
-        coherenceCohesion: "Cohesion is seamless. Paragraphing is logical, and a wide range of cohesive devices is used naturally (e.g., 'Consequently', 'Furthermore', 'The key lies in').",
-        lexicalResource: "The vocabulary is precise, sophisticated, and natural. Phrases like 'tethered to', 'curry favor', and 'pedagogical effectiveness' demonstrate a Band 9 level of flexibility.",
-        grammaticalRange: "A wide range of complex structures is used with full flexibility and accuracy. The writer uses various subordinate clauses and inverted structures flawlessly."
-      },
-      strengths: [
-        "Sophisticated balance between opposing viewpoints.",
-        "Precision in collocations (e.g., 'grade inflation', 'constructive feedback loop').",
-        "Clear and logical progression from introduction to conclusion."
-      ],
-      commonWeaknesses: [
-        "Band 5-6 students often fail to give their opinion clearly until the very end.",
-        "Over-use of basic transitions like 'Firstly' and 'Secondly' instead of contextual linking.",
-        "Repetitive vocabulary (e.g., using 'good' instead of 'effective' or 'meritorious')."
-      ],
-      improvementTips: [
-        "Focus on 'Idea Extension': Don't just state a point, explain the consequence (the 'So What?' factor).",
-        "Use 'Hedge' Language: Instead of saying 'Teachers will become lazy', say 'Instructors may potentially resort to less rigorous standards'.",
-        "Diversify Sentence Openers: Avoid starting every sentence with a Subject-Verb structure."
-      ],
-      bandUpgrades: [
-        {
-          low: "Students should judge teachers because they are the ones who learn.",
-          high: "Learners are the primary consumers of education, and their insights into teaching methodology and clarity are invaluable.",
-          explanation: "The improved version uses formal terminology ('primary consumers') and more specific criteria for evaluation ('teaching methodology and clarity')."
-        },
-        {
-          low: "If teachers are evaluated, they will give easy grades to get high scores.",
-          high: "They contend that if instructors feel their job security is tethered to student satisfaction, they may resort to 'grade inflation' to curry favor.",
-          explanation: "Uses advanced collocations like 'tethered to' and 'curry favor', showing high lexical flexibility."
-        }
-      ],
-      highlights: [
-        { phrase: "In the modern educational landscape", type: "topic", note: "A strong, contextual opening that sets the stage without repeating the prompt verbatim." },
-        { phrase: "tethered to", type: "vocab", note: "A high-level metaphorical use of vocabulary meaning 'connected to' or 'dependent on'." },
-        { phrase: "Furthermore", type: "linking", note: "A transition used to add a complementary point, maintaining the flow of the argument." },
-        { phrase: "curry favor", type: "vocab", note: "An idiomatic expression meaning to try to get someone to like you, used perfectly in a formal context." },
-        { phrase: "The key lies in the design of the evaluation system", type: "grammar", note: "A complex sentence structure that effectively shifts the focus to a specific solution." }
-      ]
-    }
-  },
-  {
-    id: 'w2',
-    topic: 'Environment',
-    type: TaskType.WRITING_TASK_2,
-    question: 'Climate change is one of the most pressing issues of our time. Some say individuals can do little to help, while others think government action is the only solution. Discuss both views.'
-  },
-  {
-    id: 'w3',
-    topic: 'Technology',
-    type: TaskType.WRITING_TASK_2,
-    question: 'The rise of artificial intelligence will bring more benefits than harm to the workplace. To what extent do you agree or disagree?'
+    question: 'Some people believe that students should be allowed to evaluate their teachers. Others argue that this would lead to a lack of discipline in the classroom. Discuss both views and give your own opinion.'
   }
 ];
 
@@ -309,41 +207,11 @@ export const SPEAKING_PART2_TASKS: SpeakingCueCard[] = [
       'why it was delayed',
       'and explain how you felt about the delay.'
     ]
-  },
-  {
-    id: 'p2-2',
-    topic: 'Describe a person you know who is very beautiful or handsome.',
-    bulletPoints: [
-      'who this person is',
-      'how you know them',
-      'what they look like',
-      'and explain why you think they are beautiful or handsome.'
-    ]
-  },
-  {
-    id: 'p2-3',
-    topic: 'Describe a traditional object of your country.',
-    bulletPoints: [
-      'what it is',
-      'how it is made',
-      'what it is used for',
-      'and explain why it is important for your country.'
-    ]
-  },
-  {
-    id: 'p2-4',
-    topic: 'Describe a time when you shared something with others.',
-    bulletPoints: [
-      'what you shared',
-      'who you shared it with',
-      'why you shared it',
-      'and explain how you felt about sharing it.'
-    ]
   }
 ];
 
 export const APP_THEME = {
-  primary: '#2563eb', // Blue 600
-  secondary: '#64748b', // Slate 500
-  accent: '#f59e0b', // Amber 500
+  primary: '#2563eb', 
+  secondary: '#64748b',
+  accent: '#f59e0b',
 };
