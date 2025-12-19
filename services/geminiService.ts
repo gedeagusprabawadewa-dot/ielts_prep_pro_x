@@ -97,7 +97,49 @@ export const evaluateWriting = async (essay: string, taskType: TaskType): Promis
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
-      contents: `Evaluate IELTS Writing. Essay: """${essay}"""`,
+      contents: `Evaluate this IELTS Writing submission. 
+      Task Type: ${taskType}
+      Essay: """${essay}"""
+      
+      INSTRUCTION FOR TEACHER MODE:
+      You are an experienced IELTS teacher teaching a student who has never studied IELTS before.
+      Assume the student has zero exam knowledge and may feel confused or nervous.
+      They need explanation before practice.
+      
+      1. Explain First (No Jargon): What this task is, what the examiner wants, and what beginners often misunderstand.
+      2. Identify 3-5 specific grammatical or lexical errors.
+      3. Reassure the Learner: Normalize mistakes, emphasize learning over results.
+      
+      TONE RULES: Calm, supportive, teacher-like, British English. No pressure language.
+      
+      Return JSON:
+      {
+        "task_response": number,
+        "coherence": number,
+        "lexical": number,
+        "grammar": number,
+        "overall": number,
+        "strengths": string[],
+        "weaknesses": string[],
+        "improvements": string[],
+        "inlineHighlights": [
+          { "phrase": string, "type": "grammar" | "vocab" | "punctuation" | "style", "explanation": string, "suggestion": string }
+        ],
+        "learningModule": { 
+           "taskIdentification": { "type": string, "dataType": string, "trends": string },
+           "sampleAnswer": string,
+           "scoreExplanation": { "ta": string, "cc": string, "lr": string, "gra": string },
+           "keyVocabulary": [{ "word": string, "explanation": string }],
+           "improvementGuide": {
+             "language": [{ "word": string, "explanation": string }],
+             "commonMistakes": string[],
+             "tips": string[]
+           },
+           "bandUpgrades": [{ "low": string, "high": string, "explanation": string }],
+           "examinerNotes": string[],
+           "practiceTask": string
+        }
+      }`,
       config: { tools: [{ googleSearch: {} }], responseMimeType: "application/json" },
     });
     const feedback = JSON.parse(response.text || '{}');
@@ -114,7 +156,7 @@ export const evaluateSpeaking = async (audioBase64: string, taskInfo: string, pa
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-native-audio-preview-09-2025',
-      contents: [{ parts: [{ inlineData: { mimeType: 'audio/webm', data: audioBase64 } }, { text: `Evaluate Speaking Part ${part}. Task: ${taskInfo}` }] }],
+      contents: [{ parts: [{ inlineData: { mimeType: 'audio/webm', data: audioBase64 } }, { text: `Evaluate Speaking Part ${part}. Task: ${taskInfo}. Act as a supportive teacher for a beginner.` }] }],
       config: { responseMimeType: "application/json" },
     });
     return JSON.parse(response.text || '{}');

@@ -11,6 +11,15 @@ export type AppTheme = 'light' | 'dark';
 export type AccentColor = 'blue' | 'emerald' | 'indigo' | 'rose';
 export type AuthMode = 'trial' | 'supabase';
 
+export interface Lesson {
+  id: string;
+  title: string;
+  category: 'basics' | 'writing' | 'speaking' | 'reading' | 'listening';
+  content: string;
+  bullets: string[];
+  teacherTip: string;
+}
+
 export interface FocusSettings {
   isEnabled: boolean;
   volume: number;
@@ -27,11 +36,18 @@ export interface GroundingLink {
   uri: string;
 }
 
+export interface InlineHighlight {
+  phrase: string;
+  type: 'grammar' | 'vocab' | 'punctuation' | 'style';
+  explanation: string;
+  suggestion: string;
+}
+
 export interface ReadingQuestion {
   id: string;
   type: 'mcq' | 'tfng' | 'gapfill';
   question: string;
-  options?: string[]; // For MCQ
+  options?: string[];
   answer: string;
   explanation?: string;
 }
@@ -144,6 +160,7 @@ export interface WritingFeedback {
   strengths: string[];
   weaknesses: string[];
   improvements: string[];
+  inlineHighlights?: InlineHighlight[];
   learningModule?: Task1LearningModule;
   groundingLinks?: GroundingLink[];
 }

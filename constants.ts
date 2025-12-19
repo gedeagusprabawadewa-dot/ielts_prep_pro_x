@@ -1,5 +1,45 @@
 
-import { WritingTask, TaskType, ReadingTask, SpeakingCueCard } from './types';
+import { WritingTask, TaskType, ReadingTask, SpeakingCueCard, Lesson } from './types';
+
+export const FOUNDATION_LESSONS: Lesson[] = [
+  {
+    id: 'f1',
+    category: 'basics',
+    title: 'What is IELTS?',
+    content: 'IELTS (International English Language Testing System) is the world’s most popular English language test for higher education and global migration. It measures your ability to communicate in English across four skills: Listening, Reading, Writing, and Speaking.',
+    bullets: [
+      'Academic: For university applications.',
+      'General Training: For work or migration.',
+      'Scored from 1.0 to 9.0.',
+      'Most top universities require a Band 7.0+.'
+    ],
+    teacherTip: 'Don’t worry about perfection. The test is designed to find out what you CAN do, not just what you get wrong.'
+  },
+  {
+    id: 'f2',
+    category: 'writing',
+    title: 'The Two Writing Tasks',
+    content: 'The Writing test lasts 60 minutes and consists of two parts. You should spend about 20 minutes on Task 1 and 40 minutes on Task 2.',
+    bullets: [
+      'Task 1: Describe data (Academic) or write a letter (General). Min 150 words.',
+      'Task 2: Write a formal essay on a social issue. Min 250 words.',
+      'Task 2 is worth twice as many marks as Task 1.'
+    ],
+    teacherTip: 'Writing Task 2 is not just about your opinion. It is about how clearly you explain and organise your ideas.'
+  },
+  {
+    id: 'f3',
+    category: 'speaking',
+    title: 'Speaking: Face to Face',
+    content: 'The Speaking test is a 11–14 minute interview with a human examiner. It has three parts, designed to get progressively more difficult.',
+    bullets: [
+      'Part 1: Familiar topics like your home, work, or hobbies.',
+      'Part 2: A "Long Turn" where you speak for 2 minutes on a specific topic.',
+      'Part 3: An abstract discussion related to the Part 2 topic.'
+    ],
+    teacherTip: 'Think of it as a conversation, not an interrogation. Eye contact and natural intonation help you score higher.'
+  }
+];
 
 export const READING_TASKS: ReadingTask[] = [
   {
@@ -40,6 +80,103 @@ However, critics argue that the technological focus on high-tech vehicles overlo
         type: 'gapfill',
         question: 'Planners in Copenhagen emphasize ________ mobility over expensive technology.',
         answer: 'human-powered'
+      }
+    ]
+  },
+  {
+    id: 'r2',
+    title: 'Nutmeg – a valuable spice',
+    passage: `The nutmeg tree, Myristica fragrans, is a large evergreen tree native to Southeast Asia. Until the late 18th century, it only grew in one place in the world: a small group of islands in the Banda Sea, part of the Moluccas – or Spice Islands – in northeastern Indonesia. The tree is thickly branched with dense foliage of tough, dark green oval leaves, and produces small, yellow, bell-shaped flowers and pale yellow pear-shaped fruits. The fruit is encased in a flesh husk. When the fruit is ripe, this husk splits into two halves along a ridge running the length of the fruit. Inside is a purple-brown shiny seed, 2-3 cm long by about 2 cm across, surrounded by a lacy red or crimson covering called an ‘aril’. These are the sources of the two spices nutmeg and mace, the former being produced from the dried seed and the latter from the aril.
+
+Nutmeg was a highly prized and costly ingredient in European cuisine in the Middle Ages, and was used as a flavouring, medicinal, and preservative agent. Throughout this period, the Arabs were the exclusive importers of the spice to Europe. They sold nutmeg for high prices to merchants based in Venice, but they never revealed the exact location of the source of this extremely valuable commodity. The Arab-Venetian dominance of the trade finally ended in 1512, when the Portuguese reached the Banda Islands and began exploiting its precious resources.
+
+Always in danger of competition from neighbouring Spain, the Portuguese began subcontracting their spice distribution to Dutch traders. Profits began to flow into the Netherlands, and the Dutch commercial fleet swiftly grew into one of the largest in the world. The Dutch quietly gained control of most of the shipping and trading of spices in Northern Europe. Then, in 1580, Portugal fell under Spanish rule, and by the end of the 16th century the Dutch found themselves locked out of the market. As prices for pepper, nutmeg, and other spices soared across Europe, they decided to fight back.
+
+In 1602, Dutch merchants founded the VOC, a trading corporation better known as the Dutch East India Company. By 1617, the VOC was the richest commercial operation in the world. The company had 50,000 employees worldwide, with a private army of 30,000 men and a fleet of 200 ships. At the same time, thousands of people across Europe were dying of the plague, a highly contagious and deadly disease. Doctors were desperate for a way to stop the spread of this disease, and they decided nutmeg held the cure. Everybody wanted nutmeg, and many were willing to spare no expense to have it. Nutmeg bought for a few pennies in Indonesia could be sold for 68,000 times its original cost on the streets of London. The only problem was the short supply. And that’s where the Dutch found their opportunity.
+
+The Banda Islands were ruled by local sultans who insisted on maintaining a neutral trading policy towards foreign powers. This allowed them to avoid the presence of Portuguese or Spanish troops on their soil, but it also left them unprotected from other invaders. In 1621, the Dutch arrived and took over. Once securely in control of the Bandas, the Dutch went to work protecting their new investment. They concentrated all nutmeg production into a few easily guarded areas, uprooting and destroying any trees outside the plantation zones. Anyone caught growing a nutmeg seedling or carrying seeds without the proper authority was severely punished. In addition, all exported nutmeg was covered with lime to make sure there was no chance a fertile seed which could be grown elsewhere would leave the islands.
+
+There was only one obstacle to Dutch domination. One of the Banda Islands, a sliver of land called Run, only 3 km long by less than 1 km wide, was under the control of the British. After decades of fighting for control of this tiny island, the Dutch and British arrived at a compromise settlement, the Treaty of Breda, in 1667. Intent on securing their hold over every nutmeg-producing island, the Dutch offered a trade: if the British would give them the island of Run, they would in turn give Britain a distant and much less valuable island in North America. The British agreed. That other island was Manhattan, which is how New Amsterdam became New York. The Dutch now had a monopoly over the nutmeg trade which would last for another century.
+
+Then, in 1770, a Frenchman named Pierre Poivre successfully smuggled nutmeg plants to safety in Mauritius, an island off the coast of Africa. Some of these were later exported to the Caribbean where they thrived, especially on the island of Grenada. Next, in 1778, a volcanic eruption in the Banda region caused a tsunami that wiped out half the nutmeg groves. Finally, in 1809, the British returned to Indonesia and seized the Banda Islands by force. They returned the islands to the Dutch in 1817, but not before transplanting hundreds of nutmeg seedlings to plantations in several locations across southern Asia. The Dutch nutmeg monopoly was over.`,
+    questions: [
+      {
+        id: 'r2-q1',
+        type: 'gapfill',
+        question: 'The leaves of the nutmeg tree are ________ in shape.',
+        answer: 'oval'
+      },
+      {
+        id: 'r2-q2',
+        type: 'gapfill',
+        question: 'The ________ surrounds the fruit and breaks open when the fruit is ripe.',
+        answer: 'husk'
+      },
+      {
+        id: 'r2-q3',
+        type: 'gapfill',
+        question: 'The ________ is used to produce the spice nutmeg.',
+        answer: 'seed'
+      },
+      {
+        id: 'r2-q4',
+        type: 'gapfill',
+        question: 'The covering known as the aril is used to produce ________.',
+        answer: 'mace'
+      },
+      {
+        id: 'r2-q5',
+        type: 'tfng',
+        question: 'In the Middle Ages, most Europeans knew where nutmeg was grown.',
+        answer: 'False'
+      },
+      {
+        id: 'r2-q6',
+        type: 'tfng',
+        question: 'The VOC was the world’s first major trading company.',
+        answer: 'Not Given'
+      },
+      {
+        id: 'r2-q7',
+        type: 'tfng',
+        question: 'Following the Treaty of Breda, the Dutch had control of all the islands where nutmeg grew.',
+        answer: 'True'
+      },
+      {
+        id: 'r2-q8',
+        type: 'gapfill',
+        question: 'In the Middle Ages, nutmeg was brought to Europe by the ________.',
+        answer: 'Arabs'
+      },
+      {
+        id: 'r2-q9',
+        type: 'gapfill',
+        question: 'In the 17th century, nutmeg was believed to be effective against the disease known as the ________.',
+        answer: 'plague'
+      },
+      {
+        id: 'r2-q10',
+        type: 'gapfill',
+        question: 'The Dutch put ________ on nutmeg to avoid it being cultivated outside the islands.',
+        answer: 'lime'
+      },
+      {
+        id: 'r2-q11',
+        type: 'gapfill',
+        question: 'The Dutch finally obtained the island of ________ from the British.',
+        answer: 'Run'
+      },
+      {
+        id: 'r2-q12',
+        type: 'gapfill',
+        question: 'In 1770, nutmeg plants were secretly taken to ________.',
+        answer: 'Mauritius'
+      },
+      {
+        id: 'r2-q13',
+        type: 'gapfill',
+        question: 'In 1778, half the Banda Islands\' nutmeg plantations were destroyed by a ________.',
+        answer: 'tsunami'
       }
     ]
   }

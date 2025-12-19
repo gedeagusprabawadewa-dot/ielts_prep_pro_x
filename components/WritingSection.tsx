@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { WRITING_TASKS } from '../constants';
-import { WritingTask, WritingFeedback, TaskType, Highlight, LanguagePoint, GroundingLink } from '../types';
+import { WritingTask, WritingFeedback, TaskType, Highlight, LanguagePoint, GroundingLink, InlineHighlight } from '../types';
 import { evaluateWriting, getTaskResources, getLiveSuggestions } from '../services/geminiService';
 import { saveSubmission, saveDraft, getDraft, clearDraft } from '../services/storageService';
 import { 
-  BarChart, Bar, LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+  BarChart, Bar, LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, Legend
 } from 'recharts';
 import { 
   Send, CheckCircle2, ChevronRight, AlertCircle, Loader2, 
@@ -13,7 +13,8 @@ import {
   LineChart as LineChartIcon, Mail, FileText, ClipboardCheck, Lightbulb,
   Table as TableIcon, ChartBar, Edit3, RotateCcw, PenTool, ExternalLink, Search, Globe, Cpu, Zap,
   Clock, Save, Trash2, Book, Target, Award, ShieldAlert, Check, TrendingUp, Presentation,
-  Trophy, ArrowRight, WifiOff, Settings, Copy, Languages, PieChart as PieChartIcon, Map as MapIcon, RefreshCw, ChevronLeft
+  Trophy, ArrowRight, WifiOff, Settings, Copy, Languages, PieChart as PieChartIcon, Map as MapIcon, RefreshCw, ChevronLeft,
+  X, History, SearchCheck, MessageSquareWarning
 } from 'lucide-react';
 
 const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> = ({ config }) => {
@@ -27,7 +28,7 @@ const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> 
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
             <XAxis dataKey={config.xAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-            <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+            <ReTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
             <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
             {config.dataKeys.map((key, idx) => (
               <Bar key={key} dataKey={key} fill={colors[idx % colors.length]} radius={[4, 4, 0, 0]} />
@@ -46,7 +47,7 @@ const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> 
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
             <XAxis dataKey={config.xAxisKey} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
             <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#94a3b8' }} />
-            <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
+            <ReTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
             <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
             {config.dataKeys.map((key, idx) => (
               <Line key={key} type="monotone" dataKey={key} stroke={colors[idx % colors.length]} strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
@@ -57,6 +58,102 @@ const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> 
     );
   }
   return null;
+};
+
+interface EssayAnnotatorProps {
+  text: string;
+  highlights: InlineHighlight[];
+}
+
+const EssayAnnotator: React.FC<EssayAnnotatorProps> = ({ text, highlights }) => {
+  const [hoveredHighlight, setHoveredHighlight] = useState<InlineHighlight | null>(null);
+  const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+
+  if (!highlights || highlights.length === 0) {
+    return <p className="text-xl leading-relaxed text-slate-700 dark:text-slate-300 font-serif whitespace-pre-wrap">{text}</p>;
+  }
+
+  // Sort highlights by their position in text to avoid overlap issues during split
+  const sortedHighlights = [...highlights].sort((a, b) => text.indexOf(a.phrase) - text.indexOf(b.phrase));
+
+  const renderTextWithHighlights = () => {
+    let lastIndex = 0;
+    const parts = [];
+
+    sortedHighlights.forEach((highlight, idx) => {
+      const index = text.indexOf(highlight.phrase, lastIndex);
+      if (index === -1) return;
+
+      // Add text before highlight
+      if (index > lastIndex) {
+        parts.push(text.substring(lastIndex, index));
+      }
+
+      // Add highlighted span
+      parts.push(
+        <span
+          key={`highlight-${idx}`}
+          className={`relative cursor-help border-b-2 transition-all px-0.5 rounded ${
+            highlight.type === 'grammar' ? 'border-rose-400 bg-rose-400/10' : 
+            highlight.type === 'vocab' ? 'border-amber-400 bg-amber-400/10' : 
+            'border-blue-400 bg-blue-400/10'
+          }`}
+          onMouseEnter={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            setHoveredHighlight(highlight);
+            setTooltipPos({ x: rect.left, y: rect.top - 10 });
+          }}
+          onMouseLeave={() => setHoveredHighlight(null)}
+        >
+          {highlight.phrase}
+        </span>
+      );
+
+      lastIndex = index + highlight.phrase.length;
+    });
+
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+
+    return parts;
+  };
+
+  return (
+    <div className="relative">
+      <div className="text-xl leading-relaxed text-slate-700 dark:text-slate-300 font-serif whitespace-pre-wrap">
+        {renderTextWithHighlights()}
+      </div>
+
+      {hoveredHighlight && (
+        <div 
+          className="fixed z-[100] w-72 p-6 bg-slate-900 text-white rounded-[28px] shadow-2xl border border-white/10 animate-in zoom-in-95 pointer-events-none"
+          style={{ 
+            left: `${Math.min(window.innerWidth - 300, Math.max(20, tooltipPos.x))}px`, 
+            top: `${tooltipPos.y}px`,
+            transform: 'translateY(-100%)'
+          }}
+        >
+          <div className="flex items-center gap-2 mb-3">
+             <div className={`w-2 h-2 rounded-full ${hoveredHighlight.type === 'grammar' ? 'bg-rose-500' : 'bg-amber-500'}`}></div>
+             <p className="text-[10px] font-black uppercase tracking-widest opacity-60">{hoveredHighlight.type} Analysis</p>
+          </div>
+          <div className="space-y-4">
+             <div>
+               <p className="text-[10px] font-black uppercase text-slate-500 mb-1">Observation</p>
+               <p className="text-sm font-medium leading-relaxed">{hoveredHighlight.explanation}</p>
+             </div>
+             <div className="p-3 bg-white/5 rounded-xl border border-white/5">
+               <p className="text-[10px] font-black uppercase text-emerald-500 mb-1">Correction</p>
+               <p className="text-sm font-black text-white italic">"{hoveredHighlight.suggestion}"</p>
+             </div>
+          </div>
+          <div className="absolute bottom-0 left-6 w-3 h-3 bg-slate-900 border-r border-b border-white/10 rotate-45 translate-y-1.5"></div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 const WritingSection: React.FC = () => {
@@ -277,6 +374,29 @@ const WritingSection: React.FC = () => {
 
                   <div className="space-y-10">
                     <section>
+                      <h3 className="text-lg font-black text-slate-800 dark:text-white mb-6 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-brand-soft text-brand flex items-center justify-center">
+                          <SearchCheck className="w-5 h-5" />
+                        </div>
+                        In-Text Analysis
+                      </h3>
+                      <div className="bg-slate-50 dark:bg-slate-800/30 p-10 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-inner">
+                        <EssayAnnotator text={essay} highlights={feedback.inlineHighlights || []} />
+                        <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700 flex gap-6">
+                           <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                             <div className="w-2.5 h-2.5 rounded-full bg-rose-400"></div> Grammar
+                           </div>
+                           <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                             <div className="w-2.5 h-2.5 rounded-full bg-amber-400"></div> Vocabulary
+                           </div>
+                           <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                             <div className="w-2.5 h-2.5 rounded-full bg-blue-400"></div> Punctuation
+                           </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    <section>
                       <h3 className="text-lg font-black text-slate-800 dark:text-white mb-4 flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
                           <CheckCircle2 className="w-5 h-5 text-emerald-600" />
@@ -433,18 +553,25 @@ const WritingSection: React.FC = () => {
 
                  {/* Key Vocabulary Section */}
                  {module.keyVocabulary && module.keyVocabulary.length > 0 && (
-                   <section className="space-y-6">
-                     <h3 className="text-xl font-black flex items-center gap-3">
-                       <div className="w-10 h-10 rounded-2xl bg-brand/10 text-brand flex items-center justify-center">
-                         <Languages className="w-5 h-5" />
-                       </div>
-                       Key Vocabulary Vault
-                     </h3>
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                   <section className="space-y-8">
+                     <div className="flex items-end justify-between border-b-2 border-slate-100 dark:border-slate-800 pb-4">
+                       <h3 className="text-2xl font-black flex items-center gap-3">
+                         <div className="w-12 h-12 rounded-2xl bg-brand text-white flex items-center justify-center shadow-lg shadow-brand/20">
+                           <Languages className="w-6 h-6" />
+                         </div>
+                         Key Vocabulary Vault
+                       </h3>
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Essential Collocations</p>
+                     </div>
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                        {module.keyVocabulary.map((item, i) => (
-                         <div key={i} className="bg-white dark:bg-slate-900 p-6 rounded-[32px] border border-slate-100 dark:border-slate-800 shadow-sm hover:border-brand transition-all flex flex-col h-full">
-                           <p className="text-base font-black text-brand mb-2">{item.word}</p>
-                           <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed font-medium">{item.explanation}</p>
+                         <div key={i} className="group bg-white dark:bg-slate-900 p-8 rounded-[40px] border border-slate-100 dark:border-slate-800 shadow-sm hover:border-brand hover:shadow-xl transition-all flex flex-col h-full relative overflow-hidden">
+                           <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                             <Languages className="w-12 h-12 text-brand" />
+                           </div>
+                           <p className="text-xl font-black text-slate-900 dark:text-white mb-3 group-hover:text-brand transition-colors">{item.word}</p>
+                           <div className="w-8 h-1 bg-brand-soft group-hover:w-16 transition-all duration-500 rounded-full mb-4"></div>
+                           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-medium">{item.explanation}</p>
                          </div>
                        ))}
                      </div>

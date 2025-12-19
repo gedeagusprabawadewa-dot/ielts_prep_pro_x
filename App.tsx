@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
+import FoundationsSection from './components/FoundationsSection';
 import WritingSection from './components/WritingSection';
 import SpeakingSection from './components/SpeakingSection';
 import ReadingSection from './components/ReadingSection';
@@ -91,7 +92,7 @@ const Testimonials = () => {
 
 const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('foundations');
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -420,6 +421,7 @@ const App: React.FC = () => {
       focusSettings={focusSettings}
       onUpdateFocus={handleUpdateFocus}
     >
+      {activeTab === 'foundations' && <FoundationsSection />}
       {activeTab === 'dashboard' && <Dashboard />}
       {activeTab === 'writing' && <WritingSection />}
       {activeTab === 'reading' && <ReadingSection />}

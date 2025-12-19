@@ -4,7 +4,7 @@ import {
   BookOpen, Mic, LayoutDashboard, LogOut, GraduationCap, 
   Moon, Sun, Palette, Library, Mail, MapPin, 
   User as UserIcon, Heart, ShieldAlert, Lightbulb, 
-  BadgeCheck, Brain 
+  BadgeCheck, Brain, Compass
 } from 'lucide-react';
 import { AppTheme, AccentColor, AuthMode, FocusSettings } from '../types';
 import FocusController from './FocusController';
@@ -30,6 +30,7 @@ const Layout: React.FC<LayoutProps> = ({
   focusSettings, onUpdateFocus
 }) => {
   const menuItems = [
+    { id: 'foundations', label: 'IELTS Foundations', icon: GraduationCap },
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'writing', label: 'Writing Practice', icon: BookOpen },
     { id: 'reading', label: 'Reading Practice', icon: Library },
@@ -51,11 +52,11 @@ const Layout: React.FC<LayoutProps> = ({
         <div className="p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-brand p-2 rounded-lg shadow-lg shadow-brand/10 transition-colors">
-              <GraduationCap className="w-6 h-6 text-white" />
+              <Compass className="w-6 h-6 text-white" />
             </div>
             <span className="font-bold text-xl text-slate-800 dark:text-white tracking-tight">IELTS Prep</span>
           </div>
-          <span className="px-1.5 py-0.5 bg-brand/10 text-brand text-[8px] font-black rounded uppercase tracking-tighter border border-brand/20">v1.0.0</span>
+          <span className="px-1.5 py-0.5 bg-brand/10 text-brand text-[8px] font-black rounded uppercase tracking-tighter border border-brand/20">v1.1.0</span>
         </div>
         
         <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
@@ -133,20 +134,6 @@ const Layout: React.FC<LayoutProps> = ({
             <LogOut className="w-4 h-4" />
             End Practice
           </button>
-
-          <div className="px-4 py-3 bg-slate-900 text-white rounded-2xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-              <Heart className="w-12 h-12" />
-            </div>
-            <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mb-1">Creator</p>
-            <p className="text-[10px] font-bold mb-2">Dewa Prabawa</p>
-            <a 
-              href="mailto:balipastika@gmail.com?subject=Support%20for%20IELTS%20Prep%20Pro" 
-              className="flex items-center gap-1.5 text-[9px] font-black text-brand hover:text-white transition-colors uppercase tracking-widest"
-            >
-              <Heart className="w-2.5 h-2.5 fill-brand" /> Support Project
-            </a>
-          </div>
         </div>
       </aside>
 
