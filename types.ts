@@ -11,6 +11,12 @@ export type AppTheme = 'light' | 'dark';
 export type AccentColor = 'blue' | 'emerald' | 'indigo' | 'rose';
 export type AuthMode = 'trial' | 'supabase';
 
+export interface FocusSettings {
+  isEnabled: boolean;
+  volume: number;
+  trackIndex: number;
+}
+
 export interface ChartDataItem {
   name: string;
   [key: string]: string | number;

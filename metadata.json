@@ -1,6 +1,6 @@
 {
   "name": "IELTS Prep Pro v1.0.0",
-  "description": "Production-grade IELTS preparation platform for Indonesian scholarship candidates. AI-driven band scoring (Band 1.0-9.0) using Gemini 2.0 with grounding.",
+  "description": "Production-grade IELTS preparation platform for Indonesian scholarship candidates. AI-driven band scoring (Band 1.0-9.0) with grounded feedback.",
   "requestFramePermissions": [
     "microphone"
   ]

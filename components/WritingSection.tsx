@@ -662,11 +662,28 @@ const WritingSection: React.FC = () => {
 
             <div className="bg-white dark:bg-slate-900 flex-1 rounded-[48px] border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden flex flex-col">
               <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                <div className="flex items-center gap-6">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Word Count</span>
-                    <span className={`text-sm font-black ${wordCount < (selectedTask.type === TaskType.WRITING_TASK_2 ? 250 : 150) ? 'text-amber-500' : 'text-emerald-500'}`}>{wordCount} Words</span>
+                <div className="flex items-center gap-8">
+                  <div className="flex flex-col min-w-[120px]">
+                    <div className="flex justify-between items-end mb-1">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Words</span>
+                      <span className="text-[9px] font-bold text-slate-400">Min: {selectedTask.type === TaskType.WRITING_TASK_2 ? '250' : '150'}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                       <span className={`text-sm font-black ${wordCount < (selectedTask.type === TaskType.WRITING_TASK_2 ? 250 : 150) ? 'text-amber-500' : 'text-brand'}`}>{wordCount}</span>
+                       <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full transition-all duration-500 ${wordCount < (selectedTask.type === TaskType.WRITING_TASK_2 ? 250 : 150) ? 'bg-amber-400' : 'bg-brand'}`} 
+                            style={{ width: `${Math.min(100, (wordCount / (selectedTask.type === TaskType.WRITING_TASK_2 ? 250 : 150)) * 100)}%` }}
+                          />
+                       </div>
+                    </div>
                   </div>
+
+                  <div className="flex flex-col">
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Characters</span>
+                    <span className="text-sm font-black text-slate-600 dark:text-slate-300">{essay.length}</span>
+                  </div>
+
                   <div className="h-8 w-px bg-slate-100 dark:bg-slate-800"></div>
                   <div className="flex flex-col">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Status</span>

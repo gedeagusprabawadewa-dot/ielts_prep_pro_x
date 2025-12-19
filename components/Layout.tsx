@@ -1,7 +1,13 @@
 
 import React from 'react';
-import { BookOpen, Mic, LayoutDashboard, LogOut, GraduationCap, Moon, Sun, Palette, Library, Mail, MapPin, User as UserIcon, Heart, ShieldAlert, Lightbulb, BadgeCheck } from 'lucide-react';
-import { AppTheme, AccentColor, AuthMode } from '../types';
+import { 
+  BookOpen, Mic, LayoutDashboard, LogOut, GraduationCap, 
+  Moon, Sun, Palette, Library, Mail, MapPin, 
+  User as UserIcon, Heart, ShieldAlert, Lightbulb, 
+  BadgeCheck, Brain 
+} from 'lucide-react';
+import { AppTheme, AccentColor, AuthMode, FocusSettings } from '../types';
+import FocusController from './FocusController';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,17 +20,21 @@ interface LayoutProps {
   onToggleTheme: () => void;
   onChangeAccent: (color: AccentColor) => void;
   authMode: AuthMode;
+  focusSettings: FocusSettings;
+  onUpdateFocus: (updates: Partial<FocusSettings>) => void;
 }
 
 const Layout: React.FC<LayoutProps> = ({ 
   children, activeTab, onTabChange, onLogout, userEmail, 
-  theme, accentColor, onToggleTheme, onChangeAccent
+  theme, accentColor, onToggleTheme, onChangeAccent,
+  focusSettings, onUpdateFocus
 }) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'writing', label: 'Writing Practice', icon: BookOpen },
     { id: 'reading', label: 'Reading Practice', icon: Library },
     { id: 'speaking', label: 'Speaking Practice', icon: Mic },
+    { id: 'mindset', label: 'Mindset Lab', icon: Brain },
   ];
 
   const colors: { id: AccentColor; class: string }[] = [
@@ -66,10 +76,12 @@ const Layout: React.FC<LayoutProps> = ({
           ))}
           
           <div className="pt-8 pb-2 px-4">
-            <p className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest">Settings & UI</p>
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest">Atmosphere & Mindset</p>
           </div>
 
-          <div className="px-2 space-y-2">
+          <div className="px-2 space-y-3">
+            <FocusController settings={focusSettings} onUpdate={onUpdateFocus} />
+
             <button
               onClick={onToggleTheme}
               className="w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
@@ -97,20 +109,6 @@ const Layout: React.FC<LayoutProps> = ({
                 ))}
               </div>
             </div>
-          </div>
-
-          <div className="mx-4 mt-8 p-4 bg-brand/5 dark:bg-brand/10 border border-brand/10 rounded-2xl">
-            <div className="flex items-center gap-2 mb-2">
-              <Lightbulb className="w-3.5 h-3.5 text-brand" />
-              <p className="text-[10px] font-black text-brand uppercase tracking-wider">Public Beta</p>
-            </div>
-            <p className="text-[9px] text-slate-500 dark:text-slate-400 font-medium leading-tight mb-3">Help us improve the AI by sharing your thoughts.</p>
-            <a 
-              href="mailto:balipastika@gmail.com?subject=IELTS%20Prep%20Pro%3A%20Feedback%20%26%20Suggestions" 
-              className="w-full py-2 bg-white dark:bg-slate-800 border border-brand/10 hover:border-brand text-brand text-[9px] font-black rounded-lg flex items-center justify-center gap-1.5 transition-all active:scale-95"
-            >
-              SHARE SUGGESTION
-            </a>
           </div>
         </nav>
 

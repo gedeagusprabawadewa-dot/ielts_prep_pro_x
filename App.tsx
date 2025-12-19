@@ -1,12 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './components/Dashboard';
 import WritingSection from './components/WritingSection';
 import SpeakingSection from './components/SpeakingSection';
 import ReadingSection from './components/ReadingSection';
+import MindsetSection from './components/MindsetSection';
 import { getSessionUser, loginUserLocal, updateUserData } from './services/storageService';
-import { User, AppTheme, AccentColor } from './types';
+import { User, AppTheme, AccentColor, FocusSettings } from './types';
 import { 
   GraduationCap, ArrowRight, Sparkles, Zap, 
   Mic, Moon, Sun, Quote, Trophy, MapPin, 
@@ -14,6 +15,12 @@ import {
   CheckCircle2, BookOpen, Library, Mail, Heart, Info, Lightbulb,
   ShieldCheck, Globe, Star, BadgeCheck
 } from 'lucide-react';
+
+const TRACK_URLS = [
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3", // Lo-fi placeholder
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",  // Ambient placeholder
+  "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"   // Coffee shop vibes placeholder
+];
 
 const Testimonials = () => {
   const stories = [
@@ -89,6 +96,14 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
+  // Focus Mode State
+  const [focusSettings, setFocusSettings] = useState<FocusSettings>({
+    isEnabled: false,
+    volume: 0.3,
+    trackIndex: 0
+  });
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => {
     const savedUser = getSessionUser();
     if (savedUser) {
@@ -96,6 +111,31 @@ const App: React.FC = () => {
       applyTheme(savedUser.theme || 'light', savedUser.accentColor || 'emerald');
     }
   }, []);
+
+  // Focus Mode Audio Management
+  useEffect(() => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio(TRACK_URLS[focusSettings.trackIndex]);
+      audioRef.current.loop = true;
+    }
+
+    const audio = audioRef.current;
+    audio.volume = focusSettings.volume;
+
+    // Smart Behavior: Auto-pause during speaking
+    const shouldBePlaying = focusSettings.isEnabled && activeTab !== 'speaking';
+
+    if (shouldBePlaying) {
+      audio.src = TRACK_URLS[focusSettings.trackIndex];
+      audio.play().catch(e => console.warn("Audio play blocked by browser policy"));
+    } else {
+      audio.pause();
+    }
+
+    return () => {
+      audio.pause();
+    };
+  }, [focusSettings.isEnabled, focusSettings.trackIndex, focusSettings.volume, activeTab]);
 
   const applyTheme = (theme: AppTheme, accent: AccentColor) => {
     const root = window.document.documentElement;
@@ -124,6 +164,10 @@ const App: React.FC = () => {
         applyTheme(updated.theme || 'light', color);
       }
     });
+  };
+
+  const handleUpdateFocus = (updates: Partial<FocusSettings>) => {
+    setFocusSettings(prev => ({ ...prev, ...updates }));
   };
 
   const handleStartTrial = (e?: React.FormEvent) => {
@@ -192,7 +236,7 @@ const App: React.FC = () => {
                 <span className="text-brand">Gold Standard.</span>
               </h1>
               <p className="text-lg text-slate-500 dark:text-slate-400 mb-10 max-w-lg leading-relaxed">
-                Experience elite AI evaluation powered by Gemini 2.0. Achieve your target band with precision-engineered feedback modules for Indonesian students.
+                Experience elite AI evaluation. Achieve your target band with precision-engineered feedback modules for Indonesian students.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-10">
@@ -373,11 +417,14 @@ const App: React.FC = () => {
       onToggleTheme={handleToggleTheme}
       onChangeAccent={handleChangeAccent}
       authMode={user.authMode}
+      focusSettings={focusSettings}
+      onUpdateFocus={handleUpdateFocus}
     >
       {activeTab === 'dashboard' && <Dashboard />}
       {activeTab === 'writing' && <WritingSection />}
       {activeTab === 'reading' && <ReadingSection />}
       {activeTab === 'speaking' && <SpeakingSection />}
+      {activeTab === 'mindset' && <MindsetSection />}
     </Layout>
   );
 };
