@@ -4,7 +4,7 @@ import {
   BookOpen, Mic, LayoutDashboard, LogOut, GraduationCap, 
   Moon, Sun, Palette, Library, Mail, MapPin, 
   User as UserIcon, Heart, ShieldAlert, Lightbulb, 
-  BadgeCheck, Brain, Compass
+  BadgeCheck, Brain, Compass, MessageCircle
 } from 'lucide-react';
 import { AppTheme, AccentColor, AuthMode, FocusSettings } from '../types';
 import FocusController from './FocusController';
@@ -111,6 +111,25 @@ const Layout: React.FC<LayoutProps> = ({
               </div>
             </div>
           </div>
+
+          {/* Support & Feedback Section */}
+          <div className="pt-8 pb-4 px-4">
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-widest mb-4">Support & Feedback</p>
+            <div className="space-y-3">
+               <a 
+                href="mailto:balipastika@gmail.com?subject=Support%20IELTS%20Prep%20Pro"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-brand-soft hover:text-brand transition-all border border-transparent hover:border-brand/20 group"
+               >
+                 <Heart className="w-4 h-4 group-hover:fill-current" /> Support Creator
+               </a>
+               <a 
+                href="mailto:balipastika@gmail.com?subject=Feedback%20v1.3.0"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+               >
+                 <MessageCircle className="w-4 h-4" /> Share Feedback
+               </a>
+            </div>
+          </div>
         </nav>
 
         <div className="p-4 border-t border-slate-100 dark:border-slate-800">
@@ -122,7 +141,7 @@ const Layout: React.FC<LayoutProps> = ({
               <p className="text-xs font-bold text-slate-800 dark:text-white truncate">{userEmail}</p>
               <div className="flex items-center gap-1">
                 <BadgeCheck className="w-2.5 h-2.5 text-brand" />
-                <p className="text-[8px] text-brand uppercase tracking-widest font-black">Verified Beta User</p>
+                <p className="text-[8px] text-brand uppercase tracking-widest font-black">Dewa Prabawa's Scholar</p>
               </div>
             </div>
           </div>

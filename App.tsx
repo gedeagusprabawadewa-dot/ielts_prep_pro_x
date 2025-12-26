@@ -14,7 +14,7 @@ import {
   Mic, Moon, Sun, Quote, Trophy, MapPin, 
   Database, User as UserIcon, Loader2, AlertCircle, 
   CheckCircle2, BookOpen, Library, Mail, Heart, Info, Lightbulb,
-  ShieldCheck, Globe, Star, BadgeCheck, Compass
+  ShieldCheck, Globe, Star, BadgeCheck, Compass, MessageSquareHeart
 } from 'lucide-react';
 
 const TRACK_URLS = [
@@ -334,8 +334,26 @@ const App: React.FC = () => {
 
             <div className="grid grid-cols-2 md:grid-cols-3 gap-12 flex-1">
               <div className="flex flex-col items-start">
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Contact</p>
-                <a href="mailto:balipastika@gmail.com" className="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-brand transition-colors">Email Support</a>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Contact & Feedback</p>
+                <a href="mailto:balipastika@gmail.com?subject=Feedback:%20IELTS%20Prep%20Pro" className="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-brand transition-colors mb-2 flex items-center gap-2">
+                  <Mail className="w-4 h-4" /> Email Support
+                </a>
+                <p className="text-[11px] text-slate-400 font-medium leading-relaxed italic">
+                  "Feedback helps us always improve the app."
+                </p>
+              </div>
+
+              <div className="flex flex-col items-start">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Creator & Support</p>
+                <div className="mb-4">
+                  <p className="text-[11px] font-black text-slate-900 dark:text-white">Dewa Prabawa</p>
+                  <p className="text-[10px] text-slate-500 flex items-center gap-1">
+                    <MapPin className="w-3 h-3 text-brand" /> Bali, Ubud, Gianyar
+                  </p>
+                </div>
+                <a href="mailto:balipastika@gmail.com?subject=Support%20IELTS%20Prep%20Pro" className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-hover transition-all shadow-lg shadow-brand/20">
+                  <Heart className="w-3 h-3 fill-current" /> Donate / Support
+                </a>
               </div>
             </div>
           </footer>
