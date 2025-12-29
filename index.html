@@ -14,7 +14,7 @@
     <meta property="og:description" content="The ultimate AI tutor for Indonesian scholars aiming for Band 8.0+." />
     <meta property="og:image" content="https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&q=80&w=1200" />
 
-    <!-- Official Tailwind Play CDN -->
+    <!-- Tailwind CSS Runtime CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -23,93 +23,29 @@
           extend: {
             colors: {
               brand: {
-                DEFAULT: 'rgb(var(--brand-primary) / <alpha-value>)',
-                hover: 'rgb(var(--brand-hover) / <alpha-value>)',
-                soft: 'rgb(var(--brand-soft) / <alpha-value>)',
+                DEFAULT: 'rgb(var(--brand-primary))',
+                hover: 'rgb(var(--brand-hover))',
+                soft: 'rgb(var(--brand-soft))',
               }
             },
             borderRadius: {
               '4xl': '2rem',
               '5xl': '2.5rem',
+            },
+            animation: {
+              'float': 'float 5s ease-in-out infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
+              }
             }
           }
         }
       }
     </script>
-    <style type="text/css">
-      :root {
-        --brand-primary: 16 185 129;
-        --brand-hover: 5 150 105;
-        --brand-soft: 236 253 245;
-      }
-      
-      .theme-blue {
-        --brand-primary: 37 99 235;
-        --brand-hover: 29 78 216;
-        --brand-soft: 239 246 255;
-      }
-      
-      .theme-emerald {
-        --brand-primary: 16 185 129;
-        --brand-hover: 5 150 105;
-        --brand-soft: 236 253 245;
-      }
-      
-      .theme-indigo {
-        --brand-primary: 79 70 229;
-        --brand-hover: 67 56 202;
-        --brand-soft: 238 242 255;
-      }
-      
-      .theme-rose {
-        --brand-primary: 225 29 72;
-        --brand-hover: 190 18 60;
-        --brand-soft: 255 241 242;
-      }
-      
-      .dark :root {
-        --brand-soft: 6 78 59 / 0.1;
-      }
-      .dark .theme-blue {
-        --brand-soft: 30 58 138 / 0.1;
-      }
-      .dark .theme-indigo {
-        --brand-soft: 49 46 129 / 0.1;
-      }
-      .dark .theme-rose {
-        --brand-soft: 136 19 55 / 0.1;
-      }
 
-      body { 
-        transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-                    color 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-      }
-
-      ::-webkit-scrollbar {
-        width: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #e2e8f0;
-        border-radius: 10px;
-      }
-      .dark ::-webkit-scrollbar-thumb {
-        background: #1e293b;
-      }
-
-      /* Animation keyframes for production polish */
-      @keyframes float {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-      }
-      .animate-float {
-        animation: float 5s ease-in-out infinite;
-      }
-    </style>
     <script type="importmap">
 {
   "imports": {
@@ -119,13 +55,15 @@
     "lucide-react": "https://esm.sh/lucide-react@^0.561.0",
     "recharts": "https://esm.sh/recharts@^3.6.0",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
-    "vite": "https://esm.sh/vite@^7.3.0"
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
   }
 }
 </script>
   </head>
-  <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-brand selection:text-white">
+  <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-emerald-500 selection:text-white">
     <div id="root"></div>
+    <!-- Entry point for the React application -->
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
