@@ -40,17 +40,12 @@ const Layout: React.FC<LayoutProps> = ({
     { id: 'mindset', label: 'Mindset', icon: Brain },
   ];
 
-  const colors: { id: AccentColor; class: string }[] = [
-    { id: 'blue', class: 'bg-blue-500' },
-    { id: 'emerald', class: 'bg-emerald-500' },
-    { id: 'indigo', class: 'bg-indigo-500' },
-    { id: 'rose', class: 'bg-rose-500' },
-  ];
-
   const handleTabClick = (id: string) => {
     onTabChange(id);
     setIsMobileMenuOpen(false);
   };
+
+  const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : '?';
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden transition-colors duration-300">
@@ -103,7 +98,18 @@ const Layout: React.FC<LayoutProps> = ({
           </div>
         </nav>
 
-        <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+        {/* User Profile & Logout Section */}
+        <div className="p-4 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+          <div className="flex items-center gap-3 px-2 py-3 mb-2 rounded-xl">
+            <div className="w-10 h-10 rounded-full bg-brand flex items-center justify-center text-white font-black text-sm shadow-md">
+              {userInitial}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-black text-slate-900 dark:text-white truncate">Scholar</p>
+              <p className="text-[10px] text-slate-500 truncate">{userEmail || 'trial@ielts.pro'}</p>
+            </div>
+          </div>
+          
           <button 
             onClick={onLogout}
             className="w-full flex items-center gap-3 px-4 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
@@ -138,6 +144,16 @@ const Layout: React.FC<LayoutProps> = ({
         {isMobileMenuOpen && (
           <div className="fixed inset-0 z-30 bg-white dark:bg-slate-900 animate-in fade-in slide-in-from-top-4 lg:hidden pt-20">
             <nav className="p-6 space-y-2">
+              <div className="flex items-center gap-4 p-5 mb-4 bg-slate-50 dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700">
+                <div className="w-12 h-12 rounded-2xl bg-brand flex items-center justify-center text-white font-black text-lg">
+                  {userInitial}
+                </div>
+                <div>
+                  <p className="font-black text-slate-900 dark:text-white">{userEmail || 'Guest Scholar'}</p>
+                  <p className="text-xs text-brand font-bold uppercase tracking-widest">Active Session</p>
+                </div>
+              </div>
+
               {menuItems.map((item) => (
                 <button
                   key={item.id}
