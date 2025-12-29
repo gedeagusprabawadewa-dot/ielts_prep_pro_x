@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
-import { WritingFeedback, SpeakingFeedback, ReadingFeedback, TaskType, Submission, PredictionResult, GroundingLink } from "../types";
+import { WritingFeedback, SpeakingFeedback, ReadingFeedback, TaskType, Submission, PredictionResult, GroundingLink, ReadingTask } from "../types";
 
 export const explainMistakeIndonesian = async (mistake: string, context: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -91,6 +91,36 @@ export const getMindsetAdvice = async (userConcern: string): Promise<string> => 
   }
 };
 
+export const generateReadingTask = async (topic?: string, difficulty?: string): Promise<ReadingTask> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Generate an original IELTS Academic Reading test.
+      Rules:
+      - 100% original content.
+      - Topic: ${topic || 'random academic topic (science, technology, environment, or history)'}
+      - Difficulty: ${difficulty || 'Band 7.0'}
+      - Length: 700-900 words.
+      - Include 4 questions: mix of mcq, tfng, and gapfill.
+      
+      Return JSON with this structure:
+      {
+        "id": "generated_id",
+        "title": "Title of the passage",
+        "passage": "Full reading passage text",
+        "questions": [
+          { "id": "q1", "type": "mcq" | "tfng" | "gapfill", "question": "Question text", "options": ["A", "B", "C", "D"], "answer": "The correct answer exactly matching the text" }
+        ]
+      }`,
+      config: { responseMimeType: "application/json" },
+    });
+    return JSON.parse(response.text || '{}');
+  } catch (e) {
+    throw e;
+  }
+};
+
 export const evaluateReadingTest = async (passage: string, studentAnswers: any[], correctAnswers: any[]): Promise<ReadingFeedback> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   try {
@@ -100,6 +130,10 @@ export const evaluateReadingTest = async (passage: string, studentAnswers: any[]
       Passage: """${passage}"""
       Student Performance: ${JSON.stringify(studentAnswers)}
       Correct Answers: ${JSON.stringify(correctAnswers)}
+      
+      Scoring Table (Approximation):
+      1/4 = Band 4.0, 2/4 = Band 5.5, 3/4 = Band 7.0, 4/4 = Band 9.0
+      
       Return JSON with this structure:
       {
         "score": number,

@@ -2,18 +2,19 @@
 import React, { useState, useEffect } from 'react';
 import { READING_TASKS } from '../constants';
 import { ReadingTask, ReadingFeedback, TaskType } from '../types';
-import { evaluateReadingTest } from '../services/geminiService';
+import { evaluateReadingTest, generateReadingTask } from '../services/geminiService';
 import { saveSubmission } from '../services/storageService';
 import { 
   BookOpen, ChevronLeft, ChevronRight, CheckCircle2, 
   Loader2, Sparkles, AlertCircle, Info, Book,
-  Clock, Award, Brain, Lightbulb, ArrowRight
+  Clock, Award, Brain, Lightbulb, ArrowRight, Zap, RefreshCw
 } from 'lucide-react';
 
 const ReadingSection: React.FC = () => {
   const [selectedTask, setSelectedTask] = useState<ReadingTask | null>(null);
   const [studentAnswers, setStudentAnswers] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [feedback, setFeedback] = useState<ReadingFeedback | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
@@ -24,6 +25,19 @@ const ReadingSection: React.FC = () => {
     setFeedback(null);
     setError(null);
     setCurrentQuestionIdx(0);
+  };
+
+  const handleAIRequest = async () => {
+    setIsGenerating(true);
+    setError(null);
+    try {
+      const task = await generateReadingTask();
+      handleSelectTask(task);
+    } catch (err) {
+      setError("AI Generation failed. Please try a pre-loaded passage.");
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleAnswerChange = (questionId: string, value: string) => {
@@ -65,13 +79,13 @@ const ReadingSection: React.FC = () => {
   if (feedback && selectedTask) {
     return (
       <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">
-        <header className="mb-10 flex justify-between items-center">
+        <header className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h2 className="text-3xl font-black text-slate-900 dark:text-white">Reading Results</h2>
             <p className="text-slate-500">Comprehensive skill breakdown and logic analysis.</p>
           </div>
-          <button onClick={() => setSelectedTask(null)} className="px-6 py-3 bg-brand text-white rounded-2xl font-black text-sm shadow-xl hover:opacity-90 transition-all">
-            Try Another Passage
+          <button onClick={() => setSelectedTask(null)} className="px-6 py-3 bg-brand text-white rounded-2xl font-black text-sm shadow-xl hover:opacity-90 transition-all flex items-center gap-2">
+            <RefreshCw className="w-4 h-4" /> Try Another Passage
           </button>
         </header>
 
@@ -84,13 +98,16 @@ const ReadingSection: React.FC = () => {
                   <Award className="w-48 h-48" />
                 </div>
                 <div className="relative z-10">
-                  <h3 className="text-4xl font-black mb-1">Band {feedback.bandScore}</h3>
-                  <p className="text-white/80 font-medium">Correct: {feedback.score} / {feedback.total}</p>
+                  <span className="text-[10px] font-black uppercase tracking-widest bg-white/20 px-3 py-1 rounded-full mb-3 inline-block">Estimated Band</span>
+                  <h3 className="text-6xl font-black mb-1">Band {feedback.bandScore}</h3>
+                  <div className="flex items-center gap-2 mt-4">
+                     <div className="px-3 py-1 bg-white/20 rounded-lg text-xs font-black">Raw Score: {feedback.score} / {feedback.total}</div>
+                  </div>
                 </div>
                 <div className="bg-white/10 backdrop-blur-md rounded-3xl p-6 border border-white/20 text-center min-w-[120px] relative z-10">
                   <Sparkles className="w-6 h-6 mx-auto mb-2 text-white/50" />
                   <span className="text-[10px] font-black uppercase tracking-widest block opacity-70">Analysis</span>
-                  <span className="text-sm font-black">COMPLETED</span>
+                  <span className="text-sm font-black uppercase">Graded</span>
                 </div>
               </div>
 
@@ -165,6 +182,13 @@ const ReadingSection: React.FC = () => {
                    </div>
                  ))}
                </div>
+            </div>
+            
+            <div className="p-6 bg-slate-100 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-800">
+               <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest mb-2 italic">Legal Safety Notice</p>
+               <p className="text-[9px] text-slate-500 leading-relaxed font-medium italic">
+                 All reading passages, questions, and scoring are AI-generated practice materials designed to reflect the IELTS Academic Reading format. This platform is not affiliated with or endorsed by IELTS, British Council, IDP, or Cambridge.
+               </p>
             </div>
           </div>
         </div>
@@ -306,9 +330,18 @@ const ReadingSection: React.FC = () => {
 
   return (
     <div className="max-w-5xl mx-auto py-10 animate-in fade-in duration-700">
-      <header className="mb-12">
-        <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">Academic Reading</h1>
-        <p className="text-slate-500 dark:text-slate-400 text-lg">Simulate the real IELTS environment with academic-grade passages.</p>
+      <header className="mb-12 flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+        <div>
+          <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">Academic Reading</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-lg">Simulate the real IELTS environment with academic-grade passages.</p>
+        </div>
+        <button 
+          onClick={handleAIRequest}
+          disabled={isGenerating}
+          className="px-8 py-4 bg-brand text-white rounded-2xl font-black text-sm shadow-xl shadow-brand/20 hover:scale-105 transition-all flex items-center gap-2 group"
+        >
+          {isGenerating ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Zap className="w-5 h-5 group-hover:animate-pulse" /> GENERATE AI TEST</>}
+        </button>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -344,6 +377,13 @@ const ReadingSection: React.FC = () => {
           </button>
         ))}
       </div>
+      
+      <footer className="mt-20 p-8 bg-white dark:bg-slate-900 rounded-[32px] border border-slate-100 dark:border-slate-800 text-center">
+        <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-2 italic">Commercial Use Disclaimer</p>
+        <p className="text-[10px] text-slate-500 leading-relaxed font-medium italic max-w-2xl mx-auto">
+          All reading passages, questions, and scoring are AI-generated practice materials designed to reflect the IELTS Academic Reading format. This platform is not affiliated with or endorsed by IELTS, British Council, IDP, or Cambridge.
+        </p>
+      </footer>
     </div>
   );
 };

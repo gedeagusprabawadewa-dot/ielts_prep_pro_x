@@ -12,7 +12,7 @@ export const PLACEMENT_QUESTIONS: PlacementQuestion[] = [
 export const ACADEMY_VOCAB: AcademyVocab[] = [
   { id: 'v1', word: 'Requirement', meaningId: 'Persyaratan', example: 'A valid passport is a requirement for travel.', category: 'IELTS Common' },
   { id: 'v2', word: 'Sustainable', meaningId: 'Berkelanjutan', example: 'We must find sustainable energy sources.', category: 'Travel' },
-  { id: 'v3', word: 'Commute', meaningId: 'Perjalanan ke tempat kerja', example: 'My daily commute takes 45 minutes.', category: 'Daily Life' },
+  { id: 'v3', word: 'Commute', meaningId: 'Persjalanan ke tempat kerja', example: 'My daily commute takes 45 minutes.', category: 'Daily Life' },
   { id: 'v4', word: 'Significant', meaningId: 'Signifikan / Penting', example: 'There has been a significant change in the weather.', category: 'Work' },
   { id: 'v5', word: 'Beneficial', meaningId: 'Bermanfaat', example: 'Exercise is beneficial for your health.', category: 'Daily Life' },
   { id: 'v6', word: 'Departure', meaningId: 'Keberangkatan', example: 'Please check the departure board for your gate.', category: 'Travel' },
@@ -157,6 +157,88 @@ However, critics argue that the technological focus on high-tech vehicles overlo
         type: 'gapfill',
         question: 'Planners in Copenhagen emphasize ________ mobility over expensive technology.',
         answer: 'human-powered'
+      }
+    ]
+  },
+  {
+    id: 'r2',
+    title: 'The Principles of a Circular Economy',
+    passage: `The traditional linear economy, characterized by a 'take-make-dispose' model, has long been criticized for its inefficiency and detrimental environmental impact. In response, a new economic paradigm known as the 'circular economy' has gained traction among policymakers and global business leaders. This model aims to decouple economic growth from the consumption of finite resources by designing out waste and pollution from the outset.
+
+Central to the circular economy is the concept of 'closing the loop'. This involves keeping products and materials in use for as long as possible through strategies such as reuse, repair, and recycling. Unlike conventional recycling, which often results in 'downcycling' (where the quality of the material degrades over time), a circular approach prioritizes maintaining the highest utility and value of components. For example, some modular electronics companies now design smartphones where individual parts, such as the camera or battery, can be easily replaced or upgraded by the consumer, thereby extending the overall lifespan of the device.
+
+Moreover, the circular economy transitions from a consumer-focused model to a user-focused one. This is often achieved through 'product-as-a-service' schemes. Instead of purchasing an item outright, customers pay for the function it provides. A notable instance is found in the lighting industry, where some manufacturers now lease 'lighting solutions' to corporate clients, retaining ownership of the hardware. This incentivizes the manufacturer to create highly durable and easily maintainable products, as they are responsible for the long-term energy costs and disposal. While the transition requires a fundamental shift in business mindset and consumer behavior, the potential benefits for global sustainability and resource security are profound.`,
+    questions: [
+      {
+        id: 'r2-q1',
+        type: 'mcq',
+        question: 'What is the primary goal of a circular economy according to the text?',
+        options: [
+          'To increase the speed of the manufacturing process.',
+          'To separate economic progress from the use of limited resources.',
+          'To encourage consumers to buy more high-tech products.',
+          'To find new ways to dispose of hazardous industrial waste.'
+        ],
+        answer: 'To separate economic progress from the use of limited resources.'
+      },
+      {
+        id: 'r2-q2',
+        type: 'tfng',
+        question: 'Circular economy strategies prioritize high-value maintenance over simple recycling.',
+        answer: 'True'
+      },
+      {
+        id: 'r2-q3',
+        type: 'tfng',
+        question: 'Most consumers currently prefer leasing products to owning them.',
+        answer: 'Not Given'
+      },
+      {
+        id: 'r2-q4',
+        type: 'gapfill',
+        question: 'In product-as-a-service models, manufacturers are motivated to build ________ goods because they cover maintenance costs.',
+        answer: 'durable'
+      }
+    ]
+  },
+  {
+    id: 'r3',
+    title: 'The Evolution of Written Language',
+    passage: `The journey of human civilization is inextricably linked to the development of writing, a technology that allowed for the preservation of information across time and space. The earliest known systems emerged independently in various parts of the world, with Mesopotamia often cited as the cradle of the first true script, known as cuneiform, around 3200 BCE. Originally developed for accounting and administrative purposes, cuneiform evolved from simple pictographs to a complex system of wedge-shaped marks pressed into clay tablets.
+
+Simultaneously, ancient Egyptians developed hieroglyphics, a script that combined logographic, alphabetic, and ideographic elements. While cuneiform was primarily utilitarian, hieroglyphics served both administrative and sacred functions, adorning the walls of temples and tombs. The decipherment of these scripts in the 19th century, most notably through the Rosetta Stone, provided historians with unprecedented insights into the social structures, religious beliefs, and legal codes of these ancient societies.
+
+The shift from logographic systems, where a symbol represents a word or idea, to phonetic systems, where a symbol represents a sound, was a pivotal moment in linguistic evolution. The Phoenician alphabet, appearing around 1050 BCE, is considered the direct ancestor of most modern phonetic scripts. Its simplicity, consisting of only 22 consonants, made literacy more accessible to the merchant classes, facilitating trade across the Mediterranean. This democratization of information eventually paved the way for the intellectual revolutions of the Classical era. Today, while digital communication has introduced new forms of shorthand and 'emojis', the fundamental principles of phonetic writing established thousands of years ago continue to underpin global literacy.`,
+    questions: [
+      {
+        id: 'r3-q1',
+        type: 'mcq',
+        question: 'What was the initial purpose of cuneiform in Mesopotamia?',
+        options: [
+          'To record religious myths and legends.',
+          'To facilitate bureaucratic and financial records.',
+          'To create decorative art for palaces.',
+          'To send secret messages during wartime.'
+        ],
+        answer: 'To facilitate bureaucratic and financial records.'
+      },
+      {
+        id: 'r3-q2',
+        type: 'tfng',
+        question: 'Hieroglyphics were used exclusively for religious purposes.',
+        answer: 'False'
+      },
+      {
+        id: 'r3-q3',
+        type: 'gapfill',
+        question: 'The Phoenician alphabet was influential because its ________ made it easier for more people to learn to read and write.',
+        answer: 'simplicity'
+      },
+      {
+        id: 'r3-q4',
+        type: 'tfng',
+        question: 'Modern emojis represent a complete return to logographic writing systems.',
+        answer: 'Not Given'
       }
     ]
   }
