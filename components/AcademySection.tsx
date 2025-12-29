@@ -276,23 +276,23 @@ const AcademySection: React.FC = () => {
     <div className="space-y-10 animate-in fade-in duration-700 pt-4 sm:pt-6">
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">Academy</h1>
-          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Foundational training to reach Band 5.0.</p>
+          <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tighter">Academy</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm sm:text-base mt-1 font-medium">Foundational training to reach Band 5.0.</p>
         </div>
         <button onClick={() => setActiveStage('placement')} className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-center justify-between sm:justify-start gap-4 shadow-sm">
           <RefreshCw className="w-4 h-4 text-brand" />
-          <div className="text-left"><p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Level</p><p className="text-xs font-bold">{progress.level.toUpperCase()}</p></div>
+          <div className="text-left"><p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Level</p><p className="text-xs font-black">{progress.level.toUpperCase()}</p></div>
         </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Foundation Card - Handles both 'foundation' and 'unassigned' as active states */}
         <div className={`p-8 sm:p-10 rounded-[32px] sm:rounded-[48px] border transition-all ${progress.level === 'foundation' || progress.level === 'unassigned' ? 'bg-brand text-white border-brand shadow-2xl' : 'bg-white dark:bg-slate-900 opacity-80'}`}>
-          <div className="flex items-center gap-3 mb-6">
-            <div className={`p-2.5 rounded-xl ${progress.level === 'foundation' || progress.level === 'unassigned' ? 'bg-white/20' : 'bg-brand-soft text-brand'}`}><Zap className="w-5 h-5" /></div>
-            <h3 className="text-xl font-black">Foundation</h3>
+          <div className="flex items-center gap-3 mb-8">
+            <div className={`p-2.5 rounded-xl ${progress.level === 'foundation' || progress.level === 'unassigned' ? 'bg-white/20' : 'bg-brand-soft text-brand'}`}><Zap className="w-6 h-6" /></div>
+            <h3 className="text-2xl font-black">Foundation</h3>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {[
               { id: 'basics', label: 'Basics', icon: BookOpen },
               { id: 'vocab', label: 'Vocab', icon: Languages },
@@ -302,13 +302,13 @@ const AcademySection: React.FC = () => {
               <button 
                 key={btn.id}
                 onClick={() => setActiveStage(btn.id as any)} 
-                className={`w-full py-3.5 rounded-xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                className={`w-full py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${
                   progress.level === 'foundation' || progress.level === 'unassigned' 
-                    ? 'bg-white text-brand hover:bg-slate-50' 
+                    ? 'bg-white text-brand hover:bg-slate-50 shadow-sm border border-white/10' 
                     : 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300'
                 }`}
               >
-                <btn.icon className="w-3.5 h-3.5" /> {btn.label}
+                <btn.icon className="w-4 h-4" /> {btn.label}
               </button>
             ))}
           </div>

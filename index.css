@@ -1,46 +1,46 @@
 
 /* Custom Theme Variables */
 :root {
-  --brand-primary: 16 185 129;
-  --brand-hover: 5 150 105;
-  --brand-soft: 236 253 245;
+  --brand-primary: 16, 185, 129;
+  --brand-hover: 5, 150, 105;
+  --brand-soft: 236, 253, 245;
 }
 
 .theme-blue {
-  --brand-primary: 37 99 235;
-  --brand-hover: 29 78 216;
-  --brand-soft: 239 246 255;
+  --brand-primary: 37, 99, 235;
+  --brand-hover: 29, 78, 216;
+  --brand-soft: 239, 246, 255;
 }
 
 .theme-emerald {
-  --brand-primary: 16 185 129;
-  --brand-hover: 5 150 105;
-  --brand-soft: 236 253 245;
+  --brand-primary: 16, 185, 129;
+  --brand-hover: 5, 150, 105;
+  --brand-soft: 236, 253, 245;
 }
 
 .theme-indigo {
-  --brand-primary: 79 70 229;
-  --brand-hover: 67 56 202;
-  --brand-soft: 238 242 255;
+  --brand-primary: 79, 70, 229;
+  --brand-hover: 67, 56, 202;
+  --brand-soft: 238, 242, 255;
 }
 
 .theme-rose {
-  --brand-primary: 225 29 72;
-  --brand-hover: 190 18 60;
-  --brand-soft: 255 241 242;
+  --brand-primary: 225, 29, 72;
+  --brand-hover: 190, 18, 60;
+  --brand-soft: 255, 241, 242;
 }
 
 .dark :root {
-  --brand-soft: 6 78 59 / 0.1;
+  --brand-soft: 6, 78, 59 / 0.1;
 }
 .dark .theme-blue {
-  --brand-soft: 30 58 138 / 0.1;
+  --brand-soft: 30, 58, 138 / 0.1;
 }
 .dark .theme-indigo {
-  --brand-soft: 49 46 129 / 0.1;
+  --brand-soft: 49, 46, 129 / 0.1;
 }
 .dark .theme-rose {
-  --brand-soft: 136 19 55 / 0.1;
+  --brand-soft: 136, 19, 55 / 0.1;
 }
 
 /* Base Styles */
@@ -59,7 +59,7 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: #e2e8h0;
   border-radius: 10px;
 }
 .dark ::-webkit-scrollbar-thumb {
