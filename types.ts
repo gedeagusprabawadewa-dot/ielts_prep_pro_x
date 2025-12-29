@@ -136,7 +136,7 @@ export interface WritingTask {
   modelAnswer?: ModelAnswer;
   task1Module?: Task1LearningModule;
   chartConfig?: {
-    type: 'bar' | 'line' | 'pie';
+    type: 'bar' | 'line' | 'pie' | 'table' | 'process' | 'map';
     data: ChartDataItem[];
     dataKeys: string[];
     xAxisKey: string;

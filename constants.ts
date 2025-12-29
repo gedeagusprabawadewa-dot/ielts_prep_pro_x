@@ -164,29 +164,108 @@ However, critics argue that the technological focus on high-tech vehicles overlo
 
 export const WRITING_TASKS: WritingTask[] = [
   {
-    id: 'w1-t1',
-    topic: 'Demographics',
+    id: 'w1-t1-wheat',
+    topic: 'Global Exports',
     type: TaskType.WRITING_TASK_1_ACADEMIC,
-    question: 'The bar chart below shows the number of people who visited three different museums in London between 2015 and 2020. Summarize the information by selecting and reporting the main features, and make comparisons where relevant.',
+    question: 'The bar chart below shows the amount of wheat exported by five different regions (in millions of tonnes) between 2010 and 2020. Summarize the information by selecting and reporting the main features, and make comparisons where relevant.',
     chartConfig: {
       type: 'bar',
       xAxisKey: 'name',
-      dataKeys: ['British Museum', 'Science Museum', 'Natural History Museum'],
+      dataKeys: ['2010', '2020'],
       data: [
-        { name: '2015', 'British Museum': 6.8, 'Science Museum': 3.2, 'Natural History Museum': 5.4 },
-        { name: '2016', 'British Museum': 6.4, 'Science Museum': 3.5, 'Natural History Museum': 4.8 },
-        { name: '2017', 'British Museum': 5.9, 'Science Museum': 3.1, 'Natural History Museum': 4.4 },
-        { name: '2018', 'British Museum': 6.2, 'Science Museum': 2.9, 'Natural History Museum': 4.5 },
-        { name: '2019', 'British Museum': 6.6, 'Science Museum': 3.8, 'Natural History Museum': 5.2 },
-        { name: '2020', 'British Museum': 1.2, 'Science Museum': 0.8, 'Natural History Museum': 0.9 },
+        { name: 'European Union', '2010': 20, '2020': 35 },
+        { name: 'USA', '2010': 30, '2020': 25 },
+        { name: 'Canada', '2010': 18, '2020': 24 },
+        { name: 'Australia', '2010': 15, '2020': 22 },
+        { name: 'Russia', '2010': 10, '2020': 38 }
       ]
     }
   },
   {
-    id: 'w1',
+    id: 'w1-t1-fastfood',
+    topic: 'Dietary Trends',
+    type: TaskType.WRITING_TASK_1_ACADEMIC,
+    question: 'The line graph below shows the consumption of three types of fast food (in grams per person per year) in Australia between 1975 and 2000. Summarize the information by selecting and reporting the main features, and make comparisons where relevant.',
+    chartConfig: {
+      type: 'line',
+      // Fixed: Change year to name to satisfy ChartDataItem interface
+      xAxisKey: 'name',
+      dataKeys: ['Pizza', 'Fish and Chips', 'Hamburgers'],
+      data: [
+        { name: '1975', 'Pizza': 5, 'Fish and Chips': 100, 'Hamburgers': 10 },
+        { name: '1980', 'Pizza': 20, 'Fish and Chips': 95, 'Hamburgers': 30 },
+        { name: '1985', 'Pizza': 45, 'Fish and Chips': 90, 'Hamburgers': 80 },
+        { name: '1990', 'Pizza': 70, 'Fish and Chips': 85, 'Hamburgers': 110 },
+        { name: '1995', 'Pizza': 85, 'Fish and Chips': 75, 'Hamburgers': 125 },
+        { name: '2000', 'Pizza': 95, 'Fish and Chips': 65, 'Hamburgers': 140 }
+      ]
+    }
+  },
+  {
+    id: 'w1-t1-elderly',
+    topic: 'Demographics',
+    type: TaskType.WRITING_TASK_1_ACADEMIC,
+    question: 'The table below shows the percentage of the population aged 65 and over in three countries in 1980, 2000, and 2020, with projections for 2040. Summarize the information by selecting and reporting the main features, and make comparisons where relevant.',
+    chartConfig: {
+      type: 'table',
+      xAxisKey: 'Country',
+      dataKeys: ['1980', '2000', '2020', '2040 (Proj)'],
+      data: [
+        { name: 'Japan', '1980': 9, '2000': 17, '2020': 28, '2040 (Proj)': 35 },
+        { name: 'USA', '1980': 11, '2000': 12, '2020': 16, '2040 (Proj)': 23 },
+        { name: 'Sweden', '1980': 14, '2000': 15, '2020': 20, '2040 (Proj)': 25 }
+      ]
+    }
+  },
+  {
+    id: 'w1-t1-tea',
+    topic: 'Manufacturing',
+    type: TaskType.WRITING_TASK_1_ACADEMIC,
+    question: 'The diagram below shows the various stages in the production of black tea for commercial sale. Summarize the information by selecting and reporting the main features.',
+    chartConfig: {
+      type: 'process',
+      xAxisKey: 'Stage',
+      dataKeys: ['Action'],
+      data: [
+        { name: '1. Plucking', Action: 'Tea leaves are picked from the bushes by hand or machine.' },
+        { name: '2. Withering', Action: 'Leaves are spread on racks to dry in the air for 12-20 hours.' },
+        { name: '3. Rolling', Action: 'Leaves are crushed by machines to release enzymes and juices.' },
+        { name: '4. Fermentation', Action: 'Chemical changes occur in a humid environment, turning leaves dark.' },
+        { name: '5. Drying', Action: 'Leaves are heated in ovens to stop fermentation and remove moisture.' },
+        { name: '6. Sorting', Action: 'Final tea is graded by size and packaged for sale.' }
+      ]
+    }
+  },
+  {
+    id: 'w1-t1-waste',
+    topic: 'Environment',
+    type: TaskType.WRITING_TASK_1_ACADEMIC,
+    question: 'The pie chart below shows the proportions of different types of global waste generated in 2023. Summarize the information by selecting and reporting the main features, and make comparisons where relevant.',
+    chartConfig: {
+      type: 'pie',
+      xAxisKey: 'Waste Type',
+      dataKeys: ['value'],
+      data: [
+        { name: 'Food/Organic', value: 44 },
+        { name: 'Paper/Cardboard', value: 17 },
+        { name: 'Plastic', value: 12 },
+        { name: 'Glass', value: 5 },
+        { name: 'Metal', value: 4 },
+        { name: 'Other', value: 18 }
+      ]
+    }
+  },
+  {
+    id: 'w2-edu',
     topic: 'Education',
     type: TaskType.WRITING_TASK_2,
     question: 'Some people believe that students should be allowed to evaluate their teachers. Others argue that this would lead to a lack of discipline in the classroom. Discuss both views and give your own opinion.'
+  },
+  {
+    id: 'w2-tech',
+    topic: 'Technology',
+    type: TaskType.WRITING_TASK_2,
+    question: 'Nowadays, more and more people are using social media as their primary source of news. Is this a positive or negative development?'
   }
 ];
 

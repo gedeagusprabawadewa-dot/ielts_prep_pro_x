@@ -289,6 +289,9 @@ const App: React.FC = () => {
                     )}
                   </button>
                 </form>
+                <p className="mt-4 text-[9px] text-slate-400 text-center font-medium leading-relaxed italic">
+                  *This content is independently created for IELTS preparation purposes and is not affiliated with or endorsed by IELTS, British Council, IDP, or Cambridge.
+                </p>
               </div>
             </div>
 
@@ -329,6 +332,9 @@ const App: React.FC = () => {
               </div>
               <p className="text-sm text-slate-500 max-w-sm leading-relaxed">
                 Empowering Indonesian students with expert AI-driven evaluation. Built for the scholarship dreamers of LPDP, AAS, and BPI.
+              </p>
+              <p className="text-[9px] text-slate-400 font-medium italic">
+                Disclaimer: Not affiliated with or endorsed by IELTS, British Council, IDP, or Cambridge.
               </p>
             </div>
 

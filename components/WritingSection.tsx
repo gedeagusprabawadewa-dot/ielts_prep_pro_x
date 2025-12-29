@@ -5,7 +5,7 @@ import { WritingTask, WritingFeedback, TaskType, Highlight, LanguagePoint, Groun
 import { evaluateWriting, getTaskResources, getLiveSuggestions, checkVocabUsage } from '../services/geminiService';
 import { saveSubmission, saveDraft, getDraft, clearDraft } from '../services/storageService';
 import { 
-  BarChart, Bar, LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, Legend
+  BarChart, Bar, LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, Legend, PieChart, Pie, Cell
 } from 'recharts';
 import { 
   Send, CheckCircle2, ChevronRight, AlertCircle, Loader2, 
@@ -14,12 +14,103 @@ import {
   Table as TableIcon, ChartBar, Edit3, RotateCcw, PenTool, ExternalLink, Search, Globe, Cpu, Zap,
   Clock, Save, Trash2, Book, Target, Award, ShieldAlert, Check, TrendingUp, Presentation,
   Trophy, ArrowRight, WifiOff, Settings, Copy, Languages, PieChart as PieChartIcon, Map as MapIcon, RefreshCw, ChevronLeft,
-  X, History, SearchCheck, MessageSquareWarning, MessageCircle, Pen
+  X, History, SearchCheck, MessageSquareWarning, MessageCircle, Pen, ArrowDown
 } from 'lucide-react';
 
+const COLORS = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#06b6d4'];
+
+const Task1Table: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> = ({ config }) => {
+  return (
+    <div className="mt-6 overflow-hidden border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm">
+      <table className="w-full text-left border-collapse bg-white dark:bg-slate-900">
+        <thead>
+          <tr className="bg-slate-50 dark:bg-slate-800/50">
+            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-slate-200 dark:border-slate-700">{config.xAxisKey}</th>
+            {config.dataKeys.map(key => (
+              <th key={key} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500 border-b border-slate-200 dark:border-slate-700">{key}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {config.data.map((row, i) => (
+            <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+              <td className="px-6 py-4 text-sm font-black text-slate-900 dark:text-white border-b border-slate-100 dark:border-slate-800">{row.name}</td>
+              {config.dataKeys.map(key => (
+                <td key={key} className="px-6 py-4 text-sm font-medium text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800">
+                   {typeof row[key] === 'number' ? `${row[key]}${config.xAxisKey.includes('Percent') ? '%' : ''}` : row[key]}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+const Task1Process: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> = ({ config }) => {
+  return (
+    <div className="mt-8 space-y-4">
+      {config.data.map((step, i) => (
+        <React.Fragment key={i}>
+          <div className="bg-white dark:bg-slate-800 p-6 rounded-[28px] border border-slate-200 dark:border-slate-700 shadow-sm flex items-start gap-5 hover:border-brand transition-all group">
+            <div className="w-10 h-10 rounded-2xl bg-brand text-white flex items-center justify-center font-black text-xs shrink-0 group-hover:scale-110 transition-transform">
+              {i + 1}
+            </div>
+            <div>
+              <p className="text-sm font-black text-slate-900 dark:text-white mb-1 uppercase tracking-tight">{step.name}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-medium italic">{step.Action}</p>
+            </div>
+          </div>
+          {i < config.data.length - 1 && (
+            <div className="flex justify-center py-2">
+              <ArrowDown className="w-5 h-5 text-slate-300 animate-bounce" />
+            </div>
+          )}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+};
+
 const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> = ({ config }) => {
-  const colors = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6'];
-  
+  if (config.type === 'table') {
+    return <Task1Table config={config} />;
+  }
+
+  if (config.type === 'process') {
+    return <Task1Process config={config} />;
+  }
+
+  if (config.type === 'pie') {
+    return (
+      <div className="h-[250px] w-full mt-4">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={config.data}
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={80}
+              paddingAngle={5}
+              dataKey="value"
+            >
+              {config.data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              ))}
+            </Pie>
+            <ReTooltip 
+               contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} 
+               formatter={(value) => `${value}%`}
+            />
+            <Legend verticalAlign="bottom" align="center" iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+
   if (config.type === 'bar') {
     return (
       <div className="h-[250px] w-full mt-4">
@@ -31,7 +122,7 @@ const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> 
             <ReTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
             <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
             {config.dataKeys.map((key, idx) => (
-              <Bar key={key} dataKey={key} fill={colors[idx % colors.length]} radius={[4, 4, 0, 0]} />
+              <Bar key={key} dataKey={key} fill={COLORS[idx % COLORS.length]} radius={[4, 4, 0, 0]} />
             ))}
           </BarChart>
         </ResponsiveContainer>
@@ -50,7 +141,7 @@ const Task1Chart: React.FC<{ config: NonNullable<WritingTask['chartConfig']> }> 
             <ReTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }} />
             <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
             {config.dataKeys.map((key, idx) => (
-              <Line key={key} type="monotone" dataKey={key} stroke={colors[idx % colors.length]} strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+              <Line key={key} type="monotone" dataKey={key} stroke={COLORS[idx % COLORS.length]} strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
             ))}
           </ReLineChart>
         </ResponsiveContainer>
@@ -816,7 +907,11 @@ const WritingSection: React.FC = () => {
                     {task.type.replace(/_/g, ' ')}
                   </span>
                   <div className="w-10 h-10 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-300 group-hover:bg-brand group-hover:text-white transition-all">
-                    <Edit3 className="w-5 h-5" />
+                    {task.chartConfig?.type === 'pie' ? <PieChartIcon className="w-5 h-5" /> : 
+                     task.chartConfig?.type === 'table' ? <TableIcon className="w-5 h-5" /> : 
+                     task.chartConfig?.type === 'line' ? <LineChartIcon className="w-5 h-5" /> : 
+                     task.chartConfig?.type === 'process' ? <RefreshCw className="w-5 h-5" /> :
+                     <Edit3 className="w-5 h-5" />}
                   </div>
                 </div>
                 <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2 leading-tight group-hover:text-brand transition-colors">{task.topic}</h3>
@@ -945,7 +1040,7 @@ const WritingSection: React.FC = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={isGrading || essay.length < 20}
-                  className="px-10 py-4 bg-brand text-white rounded-[28px] font-black text-sm flex items-center gap-3 shadow-2xl shadow-brand/40 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
+                  className="px-10 py-4 bg-brand text-white rounded-[28px] font-black text-sm flex items-center gap-3 shadow-2xl shadow-brand/40 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
                 >
                   {isGrading ? <><Loader2 className="w-5 h-5 animate-spin" /> ANALYZING...</> : <><CheckCircle2 className="w-5 h-5" /> SUBMIT FOR EVALUATION</>}
                 </button>
