@@ -350,6 +350,7 @@ const App: React.FC = () => {
                   <p className="text-[10px] text-slate-500 flex items-center gap-1">
                     <MapPin className="w-3 h-3 text-brand" /> Bali, Ubud, Gianyar
                   </p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">balipastika@gmail.com</p>
                 </div>
                 <a href="mailto:balipastika@gmail.com?subject=Support%20IELTS%20Prep%20Pro" className="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-hover transition-all shadow-lg shadow-brand/20">
                   <Heart className="w-3 h-3 fill-current" /> Donate / Support
